@@ -134,3 +134,4 @@ fastlane/readme.md
 # Gradle Wrapper
 !gradle/wrapper/gradle-wrapper.jar
 >>>>>>> e4441e3 (Initial commit: Project setup)
+.qodo

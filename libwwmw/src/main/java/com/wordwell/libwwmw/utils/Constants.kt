@@ -4,6 +4,9 @@ import android.content.Context
 import com.wordwell.libwwmw.BuildConfig
 
 object Constants {
+    const val MW_API_KEY = "514fdf81-c2ac-42ff-bac6-18634a1a7c81"
+    const val IS_DUMMY_NETWORK =  true
+
     private var encryptedApiKey: String? = null
 
     fun initializeApiKey(context: Context) {
@@ -11,6 +14,15 @@ object Constants {
             encryptedApiKey = SecurityUtils.encryptApiKey(
                 context,
                 BuildConfig.MERRIAM_WEBSTER_API_KEY
+            )
+        }
+    }
+
+    fun initializeApiKey(context: Context, apiKey: String) {
+        if (encryptedApiKey == null) {
+            encryptedApiKey = SecurityUtils.encryptApiKey(
+                context,
+                apiKey
             )
         }
     }

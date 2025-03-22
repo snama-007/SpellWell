@@ -14,7 +14,7 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
 
-        buildConfigField("String", "MERRIAM_WEBSTER_API_KEY", "\"${System.getenv("MW_API_KEY") ?: ""}\"")
+        buildConfigField("String", "MERRIAM_WEBSTER_API_KEY", "\"${System.getenv("MERRIAM_WEBSTER_API_KEY") ?: ""}\"")
     }
 
     buildFeatures {
@@ -64,4 +64,5 @@ dependencies {
     testImplementation(libs.kotlinx.coroutines.test)
     androidTestImplementation(libs.androidx.test.ext)
     androidTestImplementation(libs.androidx.test.espresso)
-} 
+    testImplementation(kotlin("test"))
+}

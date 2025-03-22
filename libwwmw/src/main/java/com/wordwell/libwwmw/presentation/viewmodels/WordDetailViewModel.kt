@@ -6,7 +6,9 @@ import androidx.lifecycle.viewModelScope
 import com.wordwell.libwwmw.domain.models.DictionaryResult
 import com.wordwell.libwwmw.domain.models.Word
 import com.wordwell.libwwmw.domain.usecases.GetWordUseCase
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 /**

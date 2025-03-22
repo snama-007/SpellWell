@@ -40,4 +40,5 @@ object NetworkUtils {
             .build()
             .create(MerriamWebsterApi::class.java)
     }
+
 } 

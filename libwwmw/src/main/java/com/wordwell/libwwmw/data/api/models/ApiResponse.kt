@@ -8,7 +8,8 @@ import com.google.gson.annotations.SerializedName
 data class DictionaryResponse(
     @SerializedName("meta") val meta: Meta,
     @SerializedName("hwi") val headwordInfo: HeadwordInfo,
-    @SerializedName("def") val definitions: List<ApiDefinition>
+    @SerializedName("def") val definitions: List<ApiDefinition>,
+    @SerializedName("fl") val functionalLabel: String, // part of speech
 )
 
 data class Meta(
@@ -29,6 +30,5 @@ data class Sound(
 )
 
 data class ApiDefinition(
-    @SerializedName("fl") val functionalLabel: String, // part of speech
     @SerializedName("sseq") val sensesSequence: List<List<List<Any>>> // complex structure for meanings
-) 
+)

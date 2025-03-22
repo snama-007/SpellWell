@@ -15,5 +15,6 @@ interface MerriamWebsterApi {
 
     companion object {
         const val BASE_URL = "https://dictionaryapi.com/"
+        const val BASE_AUDIO_URL_FULL = "https://media.merriam-webster.com/audio/prons/en/us/mp3/"
     }
-} 
+}

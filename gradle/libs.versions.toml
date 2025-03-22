@@ -1,6 +1,6 @@
 [versions]
 # Plugins
-androidGradlePlugin = "8.2.2"
+androidGradlePlugin = "8.9.0"
 kotlin = "1.9.22"
 hilt = "2.50"
 
@@ -26,8 +26,11 @@ androidx-test-espresso = "3.5.1"
 mockito = "5.7.0"
 coroutines-test = "1.7.3"
 hiltAndroid = "2.54"
+timber = "5.0.1"
 
 [libraries]
+# timber
+jakewharton-timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
 # AndroidX
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "core-ktx" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }

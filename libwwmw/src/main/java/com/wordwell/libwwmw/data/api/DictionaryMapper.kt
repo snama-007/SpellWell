@@ -4,6 +4,7 @@ import com.wordwell.libwwmw.data.api.models.DictionaryResponse
 import com.wordwell.libwwmw.domain.models.Definition
 import com.wordwell.libwwmw.domain.models.Phonetic
 import com.wordwell.libwwmw.domain.models.Word
+import com.wordwell.libwwmw.utils.AudioUtils
 
 /**
  * Maps API responses to domain models
@@ -17,13 +18,14 @@ object DictionaryMapper {
                 Phonetic(
                     text = pron.text,
                     audioUrl = pron.sound?.audio?.let { audio ->
-                        "${MerriamWebsterApi.BASE_URL}audio/prons/en/us/mp3/$audio.mp3"
+                        val subdirectory = AudioUtils.getAudioSubdirectory(audio)
+                        "${MerriamWebsterApi.BASE_AUDIO_URL_FULL}$subdirectory/$audio.mp3"
                     }
                 )
             } ?: emptyList(),
             definitions = response.definitions.map { def ->
                 Definition(
-                    partOfSpeech = def.functionalLabel,
+                    partOfSpeech = response.functionalLabel,
                     meaning = extractMeaning(def.sensesSequence),
                     examples = extractExamples(def.sensesSequence)
                 )
@@ -39,5 +41,5 @@ object DictionaryMapper {
     private fun extractExamples(senseSeq: List<List<List<Any>>>): List<String> {
         // Simplified example extraction - you might want to enhance this based on API response structure
         return emptyList()
-    }
+    } 
 } 

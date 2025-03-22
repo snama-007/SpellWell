@@ -10,7 +10,9 @@ import com.wordwell.libwwmw.data.db.entities.WordEntity
 import com.wordwell.libwwmw.domain.models.DictionaryResult
 import com.wordwell.libwwmw.domain.models.Word
 import com.wordwell.libwwmw.domain.repository.DictionaryRepository
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import retrofit2.HttpException
 import java.io.IOException
 
@@ -45,7 +47,7 @@ class DictionaryRepositoryImpl(
             // If online, fetch fresh data
             if (isNetworkAvailable()) {
                 try {
-                    val response = api.getWord(word.lowercase(), apiKey)
+                    val response = api.getWord(word.lowercase())
                     if (response.isNotEmpty()) {
                         val domainWord = DictionaryMapper.toDomain(response[0], word)
                         dao.insertWord(WordEntity(
@@ -100,4 +102,4 @@ class DictionaryRepositoryImpl(
         val capabilities = connectivityManager.getNetworkCapabilities(network) ?: return false
         return capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
     }
-} 
+}
