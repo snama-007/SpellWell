@@ -31,7 +31,7 @@ class MainActivity : AppCompatActivity() {
         viewModel = ViewModelProvider(this, factory)[WordDetailViewModel::class.java]
         
         // Only call this once
-        viewModel.lookupWord("")
+        viewModel.lookupWord("hello")
         
         // Use lifecycleScope and repeatOnLifecycle for proper lifecycle management
         lifecycleScope.launch {

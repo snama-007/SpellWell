@@ -10,15 +10,18 @@ import com.wordwell.libwwmw.presentation.viewmodels.WordDetailViewModel
 import com.wordwell.libwwmw.utils.Constants
 import java.lang.ref.WeakReference
 
-/**
- * Simple dependency injection container
- */
-class DictionaryContainer(
-    private val context: Context,
+// DictionaryContainer is a simple dependency injection container for managing dependencies
+// related to dictionary operations, including repositories and use cases.
+class DictionaryContainer private constructor(
+    applicationContext: Context,
     private val apiKey: String,
     private val useMockApi: Boolean = false
 ) {
+    // Store application context as a weak reference to prevent memory leaks
+    private val contextRef = WeakReference(applicationContext)
+    
     private val repository: DictionaryRepository by lazy {
+        val context = contextRef.get() ?: throw IllegalStateException("Context is no longer available")
         DictionaryRepositoryFactory.getInstance(context, apiKey, useMockApi)
     }
 
@@ -42,22 +45,42 @@ class DictionaryContainer(
         @Volatile
         private var INSTANCE: DictionaryContainer? = null
 
+        /**
+         * Gets the singleton instance of DictionaryContainer
+         * 
+         * @param context The application context
+         * @param apiKey The Merriam-Webster API key
+         * @param useMockApi Whether to use mock API implementation
+         * @return The singleton instance of DictionaryContainer
+         */
         fun getInstance(
             context: Context, 
             apiKey: String, 
             useMockApi: Boolean = false
         ): DictionaryContainer {
-            Constants.initializeApiKey(context, apiKey)
+            // Always use application context to prevent memory leaks
+            val applicationContext = context.applicationContext
+            
+            // Initialize API key
+            Constants.initializeApiKey(applicationContext, apiKey)
+            
             return INSTANCE ?: synchronized(this) {
-                DictionaryContainer(context.applicationContext, apiKey, useMockApi).also {
+                INSTANCE ?: DictionaryContainer(applicationContext, apiKey, useMockApi).also {
                     INSTANCE = it
                 }
             }
         }
         
-        // Method to clear the instance when no longer needed
+        /**
+         * Clears the singleton instance
+         * Should be called when the app is being terminated or when the container is no longer needed
+         */
         fun clearInstance() {
             synchronized(this) {
+                // Also clear repository instance to prevent memory leaks
+                INSTANCE?.let {
+                    DictionaryRepositoryFactory.clearInstance()
+                }
                 INSTANCE = null
             }
         }

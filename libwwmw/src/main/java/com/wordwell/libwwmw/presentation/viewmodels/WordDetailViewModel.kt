@@ -6,10 +6,16 @@ import androidx.lifecycle.viewModelScope
 import com.wordwell.libwwmw.domain.models.DictionaryResult
 import com.wordwell.libwwmw.domain.models.Word
 import com.wordwell.libwwmw.domain.usecases.GetWordUseCase
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlin.coroutines.coroutineContext
 
 /**
  * ViewModel for displaying word details
@@ -21,6 +27,11 @@ class WordDetailViewModel(
     private val _uiState = MutableStateFlow<WordDetailUiState>(WordDetailUiState.Initial)
     val uiState: StateFlow<WordDetailUiState> = _uiState.asStateFlow()
 
+    /**
+     * Initiates a word lookup operation.
+     * Fetches the word details using the use case and updates the UI state.
+     * @param word The word to look up
+     */
     fun lookupWord(word: String) {
         viewModelScope.launch {
             _uiState.value = WordDetailUiState.Loading
@@ -34,6 +45,9 @@ class WordDetailViewModel(
         }
     }
 
+    /**
+     * Represents the different UI states for displaying word details.
+     */
     sealed class WordDetailUiState {
         data object Initial : WordDetailUiState()
         data object Loading : WordDetailUiState()
@@ -41,6 +55,10 @@ class WordDetailViewModel(
         data class Error(val message: String) : WordDetailUiState()
     }
 
+    /**
+     * Factory for creating instances of WordDetailViewModel.
+     * Provides the necessary use case dependency.
+     */
     class Factory(private val getWordUseCase: GetWordUseCase) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {

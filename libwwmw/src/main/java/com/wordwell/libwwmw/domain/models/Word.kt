@@ -1,7 +1,8 @@
 package com.wordwell.libwwmw.domain.models
 
 /**
- * Represents a word with its definitions and phonetics
+ * Word represents a dictionary word with its definitions and phonetics.
+ * It is a data class used to encapsulate word-related information.
  * @property id Unique identifier for the word
  * @property word The actual word text
  * @property phonetics List of phonetic representations
@@ -17,7 +18,7 @@ data class Word(
 )
 
 /**
- * Phonetic representation of a word
+ * Phonetic represents the phonetic representation of a word.
  * @property text IPA (International Phonetic Alphabet) text
  * @property audioUrl URL to pronunciation audio file
  */
@@ -27,7 +28,7 @@ data class Phonetic(
 )
 
 /**
- * Definition of a word
+ * Definition represents the definition of a word.
  * @property partOfSpeech The grammatical category (noun, verb, etc.)
  * @property meaning The actual definition text
  * @property examples Usage examples

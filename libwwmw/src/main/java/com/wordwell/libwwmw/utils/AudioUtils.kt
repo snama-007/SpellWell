@@ -1,7 +1,7 @@
 package com.wordwell.libwwmw.utils
 
 /**
- * Utility class for handling audio-related operations
+ * AudioUtils provides utility functions for handling audio-related operations
  */
 object AudioUtils {
     

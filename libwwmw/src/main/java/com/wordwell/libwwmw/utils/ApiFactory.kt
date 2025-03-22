@@ -4,14 +4,13 @@ import android.content.Context
 import com.wordwell.libwwmw.data.api.MerriamWebsterApi
 import com.wordwell.libwwmw.data.api.MockMerriamWebsterApi
 
-/**
- * Factory for creating API service instances
- */
+// ApiFactory is responsible for creating instances of API services.
+// It provides a method to create the Merriam-Webster API service, with an option to use a mock implementation.
 object ApiFactory {
     
     /**
-     * Creates an instance of MerriamWebsterApi
-     * 
+     * Creates an instance of MerriamWebsterApi.
+     * Allows for the use of a mock implementation for testing purposes.
      * @param context Application context
      * @param useMock Whether to use the mock implementation
      * @return An implementation of MerriamWebsterApi

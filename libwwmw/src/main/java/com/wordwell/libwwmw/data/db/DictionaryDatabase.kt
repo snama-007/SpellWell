@@ -9,6 +9,8 @@ import com.wordwell.libwwmw.data.db.dao.WordDao
 import com.wordwell.libwwmw.data.db.entities.WordConverters
 import com.wordwell.libwwmw.data.db.entities.WordEntity
 
+// DictionaryDatabase is the Room database for storing dictionary words.
+// It provides access to the WordDao for performing database operations.
 @Database(
     entities = [WordEntity::class],
     version = 1,
@@ -16,12 +18,18 @@ import com.wordwell.libwwmw.data.db.entities.WordEntity
 )
 @TypeConverters(WordConverters::class)
 abstract class DictionaryDatabase : RoomDatabase() {
-    abstract fun wordDao(): WordDao
+    abstract fun wordDao(): WordDao // Provides access to WordDao for database operations
 
     companion object {
         @Volatile
         private var INSTANCE: DictionaryDatabase? = null
 
+        /**
+         * Provides the singleton instance of DictionaryDatabase.
+         * If an instance does not exist, it creates one using the provided context.
+         * @param context The application context
+         * @return The singleton instance of DictionaryDatabase
+         */
         fun getInstance(context: Context): DictionaryDatabase {
             return INSTANCE ?: synchronized(this) {
                 Room.databaseBuilder(
