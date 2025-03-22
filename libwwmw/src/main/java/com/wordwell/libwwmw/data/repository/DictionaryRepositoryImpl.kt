@@ -5,6 +5,7 @@ import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import com.wordwell.libwwmw.data.api.DictionaryMapper
 import com.wordwell.libwwmw.data.api.MerriamWebsterApi
+import com.wordwell.libwwmw.data.api.models.DictionaryResponse
 import com.wordwell.libwwmw.data.db.DictionaryDatabase
 import com.wordwell.libwwmw.data.db.entities.WordEntity
 import com.wordwell.libwwmw.domain.models.DictionaryResult
@@ -25,6 +26,7 @@ class DictionaryRepositoryImpl(
 ) : DictionaryRepository {
 
     private val dao = db.wordDao() // Data Access Object for database operations
+
 
     /**
      * Fetches a single word from the network and stores it locally.
@@ -85,29 +87,40 @@ class DictionaryRepositoryImpl(
      * @return A DictionaryResult containing the word or an error message.
      */
     private suspend fun getWordFromNetwork(word: String): DictionaryResult<Word> {
+        if (!isNetworkAvailable()) {
+            return DictionaryResult.Error(Companion.NETWORK_UNAVAILABLE_ERROR)
+        }
         return try {
             val response = api.getWord(word.lowercase())
             if (response.isNotEmpty()) {
-                val domainWord = DictionaryMapper.toDomain(response[0], word)
-                dao.insertWord(
-                    WordEntity(
-                        id = domainWord.id,
-                        word = domainWord.word,
-                        phonetics = domainWord.phonetics,
-                        definitions = domainWord.definitions,
-                        timestamp = System.currentTimeMillis()
-                    )
-                )
-                dao.keepRecentWords() // Ensure cache limit
+                val domainWord = mapResponseToDomain(response[0], word)
+                storeWordInDatabase(domainWord)
                 DictionaryResult.Success(domainWord)
             } else {
-                DictionaryResult.Error("Word not found")
+                DictionaryResult.Error(WORD_NOT_FOUND_ERROR)
             }
         } catch (e: HttpException) {
-            DictionaryResult.Error("Network error: ${e.message}", e)
+            DictionaryResult.Error(NETWORK_ERROR_MESSAGE + e.message, e)
         } catch (e: IOException) {
-            DictionaryResult.Error("Network error: ${e.message}", e)
+            DictionaryResult.Error(NETWORK_ERROR_MESSAGE + e.message, e)
         }
+    }
+
+    private fun mapResponseToDomain(response: DictionaryResponse, word: String): Word {
+        return DictionaryMapper.toDomain(response, word)
+    }
+
+    private suspend fun storeWordInDatabase(word: Word) {
+        dao.insertWord(
+            WordEntity(
+                id = word.id,
+                word = word.word,
+                phonetics = word.phonetics,
+                definitions = word.definitions,
+                timestamp = System.currentTimeMillis()
+            )
+        )
+        dao.keepRecentWords() // Ensure cache limit
     }
 
     /**
@@ -115,4 +128,13 @@ class DictionaryRepositoryImpl(
      * @return The number of words currently stored in the cache.
      */
     override suspend fun getCacheSize(): Int = dao.getWordCount()
+
+    companion object {
+        // Define constants for error messages
+        private const val NETWORK_UNAVAILABLE_ERROR = "Network is not available"
+        private const val WORD_NOT_FOUND_ERROR = "Word not found"
+        private const val NETWORK_ERROR_MESSAGE = "Network error: "
+
+    }
 }
+

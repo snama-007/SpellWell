@@ -12,6 +12,7 @@ import com.wordwell.libwwmw.presentation.viewmodels.CachedWordsViewModel
 import com.wordwell.libwwmw.presentation.viewmodels.UiState
 import com.wordwell.libwwmw.presentation.viewmodels.WordDetailViewModel
 import com.wordwell.libwwmw.utils.Constants
+import com.wordwell.libwwmw.utils.LogUtils
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -39,7 +40,7 @@ class MainActivity : AppCompatActivity() {
             cachedWordsViewModel.uiState.collect{state ->
                 when(state){
                     is UiState.Success ->
-                        Timber.tag("ww").d(state.data.toString())
+                        LogUtils.log(state.data.toString())
                     else -> {}
                 }
             }
@@ -66,7 +67,7 @@ class MainActivity : AppCompatActivity() {
 
                         is UiState.Success -> {
                             // Handle success state
-                            Timber.tag("ww").d(state.data.toString())
+                            LogUtils.log(state.data.toString())
                         }
 
                         is UiState.Error -> {

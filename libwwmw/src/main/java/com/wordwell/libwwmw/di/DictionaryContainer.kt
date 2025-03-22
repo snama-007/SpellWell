@@ -8,6 +8,11 @@ import com.wordwell.libwwmw.domain.usecases.GetWordUseCase
 import com.wordwell.libwwmw.presentation.viewmodels.CachedWordsViewModel
 import com.wordwell.libwwmw.presentation.viewmodels.WordDetailViewModel
 import com.wordwell.libwwmw.utils.Constants
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
 
 // DictionaryContainer is a simple dependency injection container for managing dependencies
@@ -17,6 +22,8 @@ class DictionaryContainer private constructor(
     private val apiKey: String,
     private val useMockApi: Boolean = false
 ) {
+    private val coroutineManager = CoroutineManager()
+
     // Store application context as a weak reference to prevent memory leaks
     private val contextRef = WeakReference(applicationContext)
     
@@ -39,6 +46,16 @@ class DictionaryContainer private constructor(
 
     val cachedWordsViewModelFactory: CachedWordsViewModel.Factory by lazy {
         CachedWordsViewModel.Factory(getCachedWordsUseCase)
+    }
+
+    /**
+     * Performs a background operation using the coroutine manager.
+     * This method demonstrates how to launch coroutines for background tasks.
+     */
+    fun performBackgroundOperation() {
+        coroutineManager.scope.launch {
+            // Perform background operations here
+        }
     }
 
     companion object {
@@ -84,5 +101,14 @@ class DictionaryContainer private constructor(
                 INSTANCE = null
             }
         }
+    }
+}
+
+class CoroutineManager {
+    private val job = SupervisorJob()
+    val scope = CoroutineScope(Dispatchers.IO + job)
+
+    fun clear() {
+        scope.cancel()
     }
 }
