@@ -12,7 +12,6 @@ import com.wordwell.libwwmw.domain.models.Word
 import com.wordwell.libwwmw.domain.repository.DictionaryRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
 import okio.IOException
 import retrofit2.HttpException
 
@@ -43,18 +42,18 @@ class DictionaryRepositoryImpl(
      * @return A Flow emitting a list of cached words.
      */
     override fun getCachedWords(): Flow<List<Word>> = flow {
-        emit(dao.getAllWords().map { entity ->
-            entity.let {
+        dao.getAllWords().collect { wordEntities ->
+            val words = wordEntities.map { entity ->
                 Word(
-                    id = entity[0].id,
+                    id = entity.id,
                     word = entity.word,
                     phonetics = entity.phonetics,
                     definitions = entity.definitions,
                     timestamp = entity.timestamp
                 )
-            }
-        }.take(10))
-
+            }.take(10)
+            emit(words)
+        }
     }
 
     /**

@@ -8,6 +8,8 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.wordwell.libwwmw.BuildConfig
 import com.wordwell.libwwmw.di.DictionaryContainer
+import com.wordwell.libwwmw.presentation.viewmodels.CachedWordsViewModel
+import com.wordwell.libwwmw.presentation.viewmodels.UiState
 import com.wordwell.libwwmw.presentation.viewmodels.WordDetailViewModel
 import com.wordwell.libwwmw.utils.Constants
 import kotlinx.coroutines.launch
@@ -15,7 +17,9 @@ import timber.log.Timber
 
 class MainActivity : AppCompatActivity() {
     private lateinit var container: DictionaryContainer
-    private lateinit var viewModel: WordDetailViewModel
+    private lateinit var wordViewModel: WordDetailViewModel
+    private lateinit var cachedWordsViewModel: CachedWordsViewModel
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,31 +32,44 @@ class MainActivity : AppCompatActivity() {
         )
         
         val factory = container.wordDetailViewModelFactory
-        viewModel = ViewModelProvider(this, factory)[WordDetailViewModel::class.java]
-        
+        wordViewModel = ViewModelProvider(this, factory)[WordDetailViewModel::class.java]
+        cachedWordsViewModel = ViewModelProvider(this, container.cachedWordsViewModelFactory)[CachedWordsViewModel::class.java]
+
+        lifecycleScope.launch {
+            cachedWordsViewModel.uiState.collect{state ->
+                when(state){
+                    is UiState.Success ->
+                        Timber.tag("ww").d(state.data.toString())
+                    else -> {}
+                }
+            }
+        }
+
         // Only call this once
-        viewModel.lookupWord("hello")
+        wordViewModel.lookupWord("hello")
+
+
         
         // Use lifecycleScope and repeatOnLifecycle for proper lifecycle management
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.uiState.collect { state ->
+                wordViewModel.uiState.collect { state ->
                     // Handle state updates
                     when (state) {
-                        is WordDetailViewModel.WordDetailUiState.Initial -> {
+                        is UiState.Initial -> {
                             // Handle initial state
                         }
 
-                        is WordDetailViewModel.WordDetailUiState.Loading -> {
+                        is UiState.Loading-> {
                             // Handle loading state
                         }
 
-                        is WordDetailViewModel.WordDetailUiState.Success -> {
+                        is UiState.Success -> {
                             // Handle success state
-                            Timber.tag("ww").d(state.word.toString())
+                            Timber.tag("ww").d(state.data.toString())
                         }
 
-                        is WordDetailViewModel.WordDetailUiState.Error -> {
+                        is UiState.Error -> {
                             // Handle error state
                         }
                         else -> {}
