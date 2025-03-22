@@ -6,7 +6,7 @@ import com.wordwell.libwwmw.data.api.MockMerriamWebsterApi
 
 // ApiFactory is responsible for creating instances of API services.
 // It provides a method to create the Merriam-Webster API service, with an option to use a mock implementation.
-object ApiFactory {
+internal object ApiFactory {
     
     /**
      * Creates an instance of MerriamWebsterApi.

@@ -14,7 +14,7 @@ import javax.crypto.spec.GCMParameterSpec
  * SecurityUtils provides utility functions for handling security operations
  * such as encrypting and decrypting the API key, and verifying app integrity.
  */
-object SecurityUtils {
+internal object SecurityUtils {
     private const val ANDROID_KEYSTORE = "AndroidKeyStore" // Keystore type for storing keys
     private const val KEY_ALIAS = "MerriamWebsterApiKey" // Alias for the API key
     private const val TRANSFORMATION = "AES/GCM/NoPadding" // Transformation for encryption/decryption

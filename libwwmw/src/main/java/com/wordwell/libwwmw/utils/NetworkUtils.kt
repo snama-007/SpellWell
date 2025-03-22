@@ -10,7 +10,7 @@ import java.util.concurrent.TimeUnit
 
 // NetworkUtils provides utility functions for setting up the API client.
 // It configures the OkHttpClient and Retrofit for network operations.
-object NetworkUtils {
+internal object NetworkUtils {
     private const val TIMEOUT_SECONDS = 30L // Timeout duration for network requests
 
     /**

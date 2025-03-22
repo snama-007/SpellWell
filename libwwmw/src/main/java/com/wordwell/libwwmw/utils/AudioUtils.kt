@@ -3,7 +3,7 @@ package com.wordwell.libwwmw.utils
 /**
  * AudioUtils provides utility functions for handling audio-related operations
  */
-object AudioUtils {
+internal object AudioUtils {
     
     /**
      * Determines the appropriate subdirectory for an audio file based on its name.
