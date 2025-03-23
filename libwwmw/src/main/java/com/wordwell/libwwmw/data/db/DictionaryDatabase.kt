@@ -5,21 +5,23 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import com.wordwell.libwwmw.data.db.dao.SetDao
 import com.wordwell.libwwmw.data.db.dao.WordDao
 import com.wordwell.libwwmw.data.db.entities.WordConverters
 import com.wordwell.libwwmw.data.db.entities.WordEntity
+import com.wordwell.libwwmw.data.db.entities.SetEntity
 
-// DictionaryDatabase is the Room database for storing dictionary words.
-// It provides access to the WordDao for performing database operations.
+// DictionaryDatabase is the Room database for storing dictionary words and sets.
+// It provides access to the WordDao and SetDao for performing database operations.
 @Database(
-    entities = [WordEntity::class],
-    version = 1,
+    entities = [WordEntity::class, SetEntity::class],
+    version = 2,
     exportSchema = false
 )
 @TypeConverters(WordConverters::class)
 abstract class DictionaryDatabase : RoomDatabase() {
-    abstract fun wordDao(): WordDao // Provides access to WordDao for database operations
-
+    abstract fun wordDao(): WordDao
+    abstract fun setDao(): SetDao
     companion object {
         @Volatile
         private var INSTANCE: DictionaryDatabase? = null
@@ -36,7 +38,7 @@ abstract class DictionaryDatabase : RoomDatabase() {
                     context.applicationContext,
                     DictionaryDatabase::class.java,
                     "dictionary.db"
-                ).build().also { INSTANCE = it }
+                ).fallbackToDestructiveMigration().build().also { INSTANCE = it }
             }
         }
     }

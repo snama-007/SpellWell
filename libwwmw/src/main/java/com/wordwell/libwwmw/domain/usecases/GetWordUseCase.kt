@@ -1,6 +1,6 @@
 package com.wordwell.libwwmw.domain.usecases
 
-import com.wordwell.libwwmw.domain.models.DictionaryResult
+import com.wordwell.libwwmw.domain.models.DictionaryFetchResult
 import com.wordwell.libwwmw.domain.models.Word
 import com.wordwell.libwwmw.domain.repository.DictionaryRepository
 import kotlinx.coroutines.flow.Flow
@@ -14,6 +14,6 @@ class GetWordUseCase(private val repository: DictionaryRepository) {
      * @param word The word to look up
      * @return Flow of DictionaryResult containing Word data
      */
-    suspend operator fun invoke(word: String): Flow<DictionaryResult<Word>> = 
+    suspend operator fun invoke(word: String): Flow<DictionaryFetchResult<Word>> =
         repository.getWord(word.trim().lowercase())
 } 

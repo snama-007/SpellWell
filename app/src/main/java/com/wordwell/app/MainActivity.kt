@@ -6,7 +6,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import com.wordwell.libwwmw.BuildConfig
 import com.wordwell.libwwmw.di.DictionaryContainer
 import com.wordwell.libwwmw.presentation.viewmodels.CachedWordsViewModel
 import com.wordwell.libwwmw.presentation.viewmodels.UiState
@@ -14,7 +13,6 @@ import com.wordwell.libwwmw.presentation.viewmodels.WordDetailViewModel
 import com.wordwell.libwwmw.utils.Constants
 import com.wordwell.libwwmw.utils.LogUtils
 import kotlinx.coroutines.launch
-import timber.log.Timber
 
 class MainActivity : AppCompatActivity() {
     private lateinit var container: DictionaryContainer
@@ -29,27 +27,31 @@ class MainActivity : AppCompatActivity() {
         container = DictionaryContainer.getInstance(
             context = applicationContext,
             apiKey = Constants.MW_API_KEY,
-            useMockApi = true  // Use mock API instead of real network calls
+            useMockApi = false  // Use mock API instead of real network calls
         )
-        
+
         val factory = container.wordDetailViewModelFactory
         wordViewModel = ViewModelProvider(this, factory)[WordDetailViewModel::class.java]
         cachedWordsViewModel = ViewModelProvider(this, container.cachedWordsViewModelFactory)[CachedWordsViewModel::class.java]
+        val words = listOf( "tiger", "fox", "elephant", "lion", "giraffe",
+            "zebra", "rabbit", "dog", "cat", "horse",
+            "monkey", "bear", "panda", "kangaroo", "squirrel",
+            "deer", "dolphin", "shark", "whale", "penguin",
+            "octopus", "snail", "frog", "wolf", "bat")
+        cachedWordsViewModel.fetchWordsBySetName("animals", words)
 
         lifecycleScope.launch {
             cachedWordsViewModel.uiState.collect{state ->
                 when(state){
                     is UiState.Success ->
-                        LogUtils.log(state.data.toString())
+                        LogUtils.log("Data : $state.data.toString()")
                     else -> {}
                 }
             }
         }
 
         // Only call this once
-        wordViewModel.lookupWord("hello")
-
-
+        //wordViewModel.lookupWord("hello")
         
         // Use lifecycleScope and repeatOnLifecycle for proper lifecycle management
         lifecycleScope.launch {
@@ -84,10 +86,5 @@ class MainActivity : AppCompatActivity() {
         super.onDestroy()
         // Clear the instance when the activity is destroyed
         DictionaryContainer.clearInstance()
-    }
-
-    private fun testAPIKey(){
-        Timber.d("Log test")
-        Timber.tag("ww").d(BuildConfig.MERRIAM_WEBSTER_API_KEY)
     }
 }

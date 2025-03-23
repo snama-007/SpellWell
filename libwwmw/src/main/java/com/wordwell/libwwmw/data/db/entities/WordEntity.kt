@@ -14,7 +14,8 @@ data class WordEntity(
     val word: String,
     val phonetics: List<Phonetic>,
     val definitions: List<Definition>,
-    val timestamp: Long
+    val timestamp: Long,
+    val setName: String
 )
 
 /**

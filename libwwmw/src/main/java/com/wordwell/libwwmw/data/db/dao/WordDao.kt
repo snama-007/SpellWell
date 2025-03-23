@@ -60,4 +60,20 @@ interface WordDao {
         )
     """)
     suspend fun keepRecentWords()
+
+    /**
+     * Retrieves all word entities associated with a specific set name.
+     * @param setName The name of the set to query
+     * @return A Flow emitting a list of WordEntities associated with the set name
+     */
+    @Query("SELECT * FROM words WHERE setName = :setName ORDER BY timestamp DESC")
+    fun getWordsBySetName(setName: String): Flow<List<WordEntity>>
+
+    /**
+     * Inserts multiple word entities into the database.
+     * Replaces any existing entities with the same ID.
+     * @param words The list of WordEntities to insert
+     */
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertWords(words: List<WordEntity>)
 } 

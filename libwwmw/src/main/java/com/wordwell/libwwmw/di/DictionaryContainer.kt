@@ -3,7 +3,8 @@ package com.wordwell.libwwmw.di
 import android.content.Context
 import com.wordwell.libwwmw.data.repository.DictionaryRepositoryFactory
 import com.wordwell.libwwmw.domain.repository.DictionaryRepository
-import com.wordwell.libwwmw.domain.usecases.GetCachedWordsUseCase
+import com.wordwell.libwwmw.domain.usecases.FetchCachedWordsUseCase
+import com.wordwell.libwwmw.domain.usecases.FetchWordsBySetUseCase
 import com.wordwell.libwwmw.domain.usecases.GetWordUseCase
 import com.wordwell.libwwmw.presentation.viewmodels.CachedWordsViewModel
 import com.wordwell.libwwmw.presentation.viewmodels.WordDetailViewModel
@@ -12,7 +13,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
 
 // DictionaryContainer is a simple dependency injection container for managing dependencies
@@ -36,26 +36,25 @@ class DictionaryContainer private constructor(
         GetWordUseCase(repository)
     }
 
-    private val getCachedWordsUseCase: GetCachedWordsUseCase by lazy {
-        GetCachedWordsUseCase(repository)
+    private val getCachedWordsUseCase: FetchCachedWordsUseCase by lazy {
+        FetchCachedWordsUseCase(repository)
+    }
+
+    private val getWordsBySetUseCase: FetchWordsBySetUseCase by lazy {
+        FetchWordsBySetUseCase(repository)
     }
 
     val wordDetailViewModelFactory: WordDetailViewModel.Factory by lazy {
-        WordDetailViewModel.Factory(getWordUseCase)
+        WordDetailViewModel.Factory(
+            getWordUseCase,
+        )
     }
 
     val cachedWordsViewModelFactory: CachedWordsViewModel.Factory by lazy {
-        CachedWordsViewModel.Factory(getCachedWordsUseCase)
-    }
-
-    /**
-     * Performs a background operation using the coroutine manager.
-     * This method demonstrates how to launch coroutines for background tasks.
-     */
-    fun performBackgroundOperation() {
-        coroutineManager.scope.launch {
-            // Perform background operations here
-        }
+        CachedWordsViewModel.Factory(
+            getCachedWordsUseCase,
+            fetchWordsByStrategyUseCase = getWordsBySetUseCase
+        )
     }
 
     companion object {

@@ -3,8 +3,10 @@ package com.wordwell.libwwmw.presentation.viewmodels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.wordwell.libwwmw.domain.models.DictionaryFetchResult
 import com.wordwell.libwwmw.domain.models.Word
-import com.wordwell.libwwmw.domain.usecases.GetCachedWordsUseCase
+import com.wordwell.libwwmw.domain.usecases.FetchCachedWordsUseCase
+import com.wordwell.libwwmw.domain.usecases.FetchWordsBySetUseCase
 import kotlinx.coroutines.launch
 
 /**
@@ -12,25 +14,46 @@ import kotlinx.coroutines.launch
  * It interacts with the use case to load cached words and update the UI state.
  */
 class CachedWordsViewModel(
-    private val getCachedWordsUseCase: GetCachedWordsUseCase
+    private val getCachedWordsUseCase: FetchCachedWordsUseCase,
+    private val fetchWordsByStrategyUseCase: FetchWordsBySetUseCase
 ) : BaseViewModel<List<Word>>() {
 
     init {
-        loadCachedWords()
+       // loadCachedWords()
     }
 
     /**
      * Loads the cached words using the use case.
      * Updates the UI state based on the retrieved words.
      */
-    fun loadCachedWords() {
+    private fun loadCachedWords() {
         viewModelScope.launch {
             setLoading()
-            getCachedWordsUseCase().collect { words ->
-                if (words.isEmpty()) {
-                    setError("No cached words found")
-                } else {
-                    setSuccess(words)
+            getCachedWordsUseCase().collect { result ->
+                when (result) {
+                    is DictionaryFetchResult.Success -> setSuccess(result.data)
+                    else -> setError("Failed to load cached words")
+                }
+            }
+        }
+    }
+
+    fun fetchWordsBySetName(setName: String, words: List<String> = emptyList()) {
+        viewModelScope.launch {
+            setLoading()
+            if (words.isEmpty()) {
+                fetchWordsByStrategyUseCase(setName).collect { result ->
+                    when (result) {
+                        is DictionaryFetchResult.Success -> setSuccess(result.data)
+                        else -> setError("Failed to load cached words")
+                    }
+                }
+            } else {
+                fetchWordsByStrategyUseCase(setName, words).collect { result ->
+                    when (result) {
+                        is DictionaryFetchResult.Success -> setSuccess(result.data)
+                        else -> setError("Failed to load cached words")
+                    }
                 }
             }
         }
@@ -40,11 +63,14 @@ class CachedWordsViewModel(
      * Factory for creating instances of CachedWordsViewModel.
      * Provides the necessary use case dependency.
      */
-    class Factory(private val getCachedWordsUseCase: GetCachedWordsUseCase) : ViewModelProvider.Factory {
+    class Factory(
+        private val getCachedWordsUseCase: FetchCachedWordsUseCase,
+        private val fetchWordsByStrategyUseCase: FetchWordsBySetUseCase
+    ) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             if (modelClass.isAssignableFrom(CachedWordsViewModel::class.java)) {
-                return CachedWordsViewModel(getCachedWordsUseCase) as T
+                return CachedWordsViewModel(getCachedWordsUseCase, fetchWordsByStrategyUseCase) as T
             }
             throw IllegalArgumentException("Unknown ViewModel class")
         }

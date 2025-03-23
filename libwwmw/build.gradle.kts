@@ -6,7 +6,7 @@ plugins {
 
 android {
     namespace = "com.wordwell.libwwmw"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         minSdk = 24
@@ -48,6 +48,7 @@ dependencies {
     // Room
     implementation(libs.bundles.room)
     implementation(libs.hilt.android)
+    implementation(libs.androidx.work.runtime.ktx)
     kapt(libs.room.compiler)
     
     // Network

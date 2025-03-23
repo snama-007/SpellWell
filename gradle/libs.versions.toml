@@ -27,6 +27,7 @@ mockito = "5.7.0"
 coroutines-test = "1.7.3"
 hiltAndroid = "2.54"
 timber = "5.0.1"
+workRuntimeKtx = "2.10.0"
 
 [libraries]
 # timber
@@ -62,6 +63,7 @@ androidx-test-espresso = { group = "androidx.test.espresso", name = "espresso-co
 mockito-core = { group = "org.mockito", name = "mockito-core", version.ref = "mockito" }
 kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "coroutines-test" }
 hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hiltAndroid" }
+androidx-work-runtime-ktx = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "workRuntimeKtx" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }

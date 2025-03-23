@@ -9,7 +9,7 @@ import com.wordwell.libwwmw.data.db.DictionaryDatabase
 import com.wordwell.libwwmw.data.db.dao.WordDao
 import com.wordwell.libwwmw.data.db.entities.WordEntity
 import com.wordwell.libwwmw.domain.models.Definition
-import com.wordwell.libwwmw.domain.models.DictionaryResult
+import com.wordwell.libwwmw.domain.models.DictionaryFetchResult
 import com.wordwell.libwwmw.domain.models.Phonetic
 import com.wordwell.libwwmw.domain.models.Word
 import junit.framework.Assert.assertEquals
@@ -78,8 +78,8 @@ class DictionaryRepositoryImplTest {
 
         // Then
         val emissions = result.first()
-        assertTrue(emissions is DictionaryResult.Success)
-        assertEquals(testWord, (emissions as DictionaryResult.Success).data)
+        assertTrue(emissions is DictionaryFetchResult.Success)
+        assertEquals(testWord, (emissions as DictionaryFetchResult.Success).data)
     }
 
     @Test
@@ -110,10 +110,10 @@ class DictionaryRepositoryImplTest {
 
         // Then
         val emissions = result.first()
-        assertTrue(emissions is DictionaryResult.Error)
+        assertTrue(emissions is DictionaryFetchResult.Error)
         assertEquals(
             "No internet connection and no cached data",
-            (emissions as DictionaryResult.Error).message
+            (emissions as DictionaryFetchResult.Error).message
         )
     }
 
