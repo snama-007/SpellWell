@@ -6,7 +6,7 @@ plugins {
 
 android {
     namespace = "com.wordwell.libwwmw"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         minSdk = 24
@@ -14,7 +14,7 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
 
-        buildConfigField("String", "MERRIAM_WEBSTER_API_KEY", "\"${System.getenv("MW_API_KEY") ?: ""}\"")
+        buildConfigField("String", "MERRIAM_WEBSTER_API_KEY", "\"${System.getenv("MERRIAM_WEBSTER_API_KEY") ?: ""}\"")
     }
 
     buildFeatures {
@@ -48,6 +48,7 @@ dependencies {
     // Room
     implementation(libs.bundles.room)
     implementation(libs.hilt.android)
+    implementation(libs.androidx.work.runtime.ktx)
     kapt(libs.room.compiler)
     
     // Network
@@ -64,4 +65,5 @@ dependencies {
     testImplementation(libs.kotlinx.coroutines.test)
     androidTestImplementation(libs.androidx.test.ext)
     androidTestImplementation(libs.androidx.test.espresso)
-} 
+    testImplementation(kotlin("test"))
+}

@@ -8,12 +8,17 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
-/**
- * Network utility for API client setup
- */
-object NetworkUtils {
-    private const val TIMEOUT_SECONDS = 30L
+// NetworkUtils provides utility functions for setting up the API client.
+// It configures the OkHttpClient and Retrofit for network operations.
+internal object NetworkUtils {
+    private const val TIMEOUT_SECONDS = 30L // Timeout duration for network requests
 
+    /**
+     * Creates an instance of MerriamWebsterApi using Retrofit.
+     * Configures the OkHttpClient with logging and API key interceptors.
+     * @param context The application context
+     * @return An instance of MerriamWebsterApi
+     */
     fun createApiService(context: Context): MerriamWebsterApi {
         // Verify app integrity
         require(SecurityUtils.verifyAppIntegrity(context)) { "App integrity check failed" }
@@ -40,4 +45,5 @@ object NetworkUtils {
             .build()
             .create(MerriamWebsterApi::class.java)
     }
+
 } 

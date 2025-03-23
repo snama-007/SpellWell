@@ -3,30 +3,29 @@ package com.wordwell.libwwmw.data.repository
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
-import com.wordwell.libwwmw.data.api.DictionaryMapper
 import com.wordwell.libwwmw.data.api.MerriamWebsterApi
 import com.wordwell.libwwmw.data.api.models.DictionaryResponse
 import com.wordwell.libwwmw.data.db.DictionaryDatabase
 import com.wordwell.libwwmw.data.db.dao.WordDao
 import com.wordwell.libwwmw.data.db.entities.WordEntity
 import com.wordwell.libwwmw.domain.models.Definition
-import com.wordwell.libwwmw.domain.models.DictionaryResult
+import com.wordwell.libwwmw.domain.models.DictionaryFetchResult
 import com.wordwell.libwwmw.domain.models.Phonetic
 import com.wordwell.libwwmw.domain.models.Word
+import junit.framework.Assert.assertEquals
+import junit.framework.Assert.assertTrue
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Mock
-import org.mockito.Mockito.*
+import org.mockito.Mockito.any
+import org.mockito.Mockito.mock
+import org.mockito.Mockito.verify
+import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
-import retrofit2.HttpException
-import java.io.IOException
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 
 @ExperimentalCoroutinesApi
 class DictionaryRepositoryImplTest {
@@ -79,8 +78,8 @@ class DictionaryRepositoryImplTest {
 
         // Then
         val emissions = result.first()
-        assertTrue(emissions is DictionaryResult.Success)
-        assertEquals(testWord, (emissions as DictionaryResult.Success).data)
+        assertTrue(emissions is DictionaryFetchResult.Success)
+        assertEquals(testWord, (emissions as DictionaryFetchResult.Success).data)
     }
 
     @Test
@@ -89,13 +88,13 @@ class DictionaryRepositoryImplTest {
         val apiResponse = mock<DictionaryResponse>()
         `when`(wordDao.getWord("test")).thenReturn(flowOf(null))
         `when`(networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)).thenReturn(true)
-        `when`(api.getWord("test", apiKey)).thenReturn(listOf(apiResponse))
+        `when`(api.getWord("test")).thenReturn(listOf(apiResponse))
         
         // When
         val result = repository.getWord("test")
 
         // Then
-        verify(api).getWord("test", apiKey)
+        verify(api).getWord("test")
         verify(wordDao).insertWord(any())
         verify(wordDao).keepRecentWords()
     }
@@ -111,10 +110,10 @@ class DictionaryRepositoryImplTest {
 
         // Then
         val emissions = result.first()
-        assertTrue(emissions is DictionaryResult.Error)
+        assertTrue(emissions is DictionaryFetchResult.Error)
         assertEquals(
             "No internet connection and no cached data",
-            (emissions as DictionaryResult.Error).message
+            (emissions as DictionaryFetchResult.Error).message
         )
     }
 

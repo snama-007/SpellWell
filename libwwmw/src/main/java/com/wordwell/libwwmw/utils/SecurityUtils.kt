@@ -11,16 +11,21 @@ import javax.crypto.SecretKey
 import javax.crypto.spec.GCMParameterSpec
 
 /**
- * Utility class for handling security operations
+ * SecurityUtils provides utility functions for handling security operations
+ * such as encrypting and decrypting the API key, and verifying app integrity.
  */
-object SecurityUtils {
-    private const val ANDROID_KEYSTORE = "AndroidKeyStore"
-    private const val KEY_ALIAS = "MerriamWebsterApiKey"
-    private const val TRANSFORMATION = "AES/GCM/NoPadding"
-    private const val AUTH_TAG_LENGTH = 128
+internal object SecurityUtils {
+    private const val ANDROID_KEYSTORE = "AndroidKeyStore" // Keystore type for storing keys
+    private const val KEY_ALIAS = "MerriamWebsterApiKey" // Alias for the API key
+    private const val TRANSFORMATION = "AES/GCM/NoPadding" // Transformation for encryption/decryption
+    private const val AUTH_TAG_LENGTH = 128 // Authentication tag length for GCM
 
     /**
-     * Encrypts the API key for storage
+     * Encrypts the API key for secure storage.
+     * Generates a new key if it doesn't exist in the keystore.
+     * @param context The application context
+     * @param apiKey The API key to encrypt
+     * @return The encrypted API key as a Base64-encoded string
      */
     fun encryptApiKey(context: Context, apiKey: String): String {
         val keyStore = KeyStore.getInstance(ANDROID_KEYSTORE).apply { load(null) }
@@ -53,7 +58,10 @@ object SecurityUtils {
     }
 
     /**
-     * Decrypts the stored API key
+     * Decrypts the stored API key.
+     * @param context The application context
+     * @param encryptedData The encrypted API key as a Base64-encoded string
+     * @return The decrypted API key
      */
     fun decryptApiKey(context: Context, encryptedData: String): String {
         val keyStore = KeyStore.getInstance(ANDROID_KEYSTORE).apply { load(null) }
@@ -71,7 +79,9 @@ object SecurityUtils {
     }
 
     /**
-     * Checks if the app has been tampered with
+     * Checks if the app has been tampered with.
+     * @param context The application context
+     * @return True if the app integrity is verified, false otherwise
      */
     fun verifyAppIntegrity(context: Context): Boolean {
         return try {

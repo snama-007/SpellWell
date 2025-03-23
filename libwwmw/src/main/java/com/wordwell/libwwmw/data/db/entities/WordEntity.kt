@@ -3,7 +3,6 @@ package com.wordwell.libwwmw.data.db.entities
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverter
-import androidx.room.TypeConverters
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.wordwell.libwwmw.domain.models.Definition
@@ -15,7 +14,8 @@ data class WordEntity(
     val word: String,
     val phonetics: List<Phonetic>,
     val definitions: List<Definition>,
-    val timestamp: Long
+    val timestamp: Long,
+    val setName: String
 )
 
 /**
