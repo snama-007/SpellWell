@@ -8,6 +8,7 @@ import com.wordwell.libwwmw.data.api.models.DictionaryResponse
 import com.wordwell.libwwmw.data.db.DictionaryDatabase
 import com.wordwell.libwwmw.data.db.dao.WordDao
 import com.wordwell.libwwmw.data.db.entities.WordEntity
+import com.wordwell.libwwmw.domain.audio.AudioDownloadManager
 import com.wordwell.libwwmw.domain.models.Definition
 import com.wordwell.libwwmw.domain.models.DictionaryFetchResult
 import com.wordwell.libwwmw.domain.models.Phonetic
@@ -72,7 +73,7 @@ class DictionaryRepositoryImplTest {
         
         repository = DictionaryRepositoryImpl(
             api, db, context, apiKey,
-            audioDownloadManager =
+            audioDownloadManager = null
         )
     }
 
