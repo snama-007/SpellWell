@@ -1,5 +1,7 @@
 package com.wordwell.libwwmw.domain.models
 
+import com.wordwell.libwwmw.utils.Constants
+
 /**
  * Word represents a dictionary word with its definitions and phonetics.
  * It is a data class used to encapsulate word-related information.
@@ -8,14 +10,32 @@ package com.wordwell.libwwmw.domain.models
  * @property phonetics List of phonetic representations
  * @property definitions List of word definitions
  * @property timestamp When the word was last fetched/updated
+ * @property audioFilePath Local path to the audio file
+ * @property audioDownloadStatus Status of audio download
  */
 data class Word(
     val id: String,
     val word: String,
     val phonetics: List<Phonetic>,
     val definitions: List<Definition>,
-    val timestamp: Long = System.currentTimeMillis()
-)
+    val timestamp: Long = System.currentTimeMillis(),
+    val audioFilePath: String? = null,
+    val audioDownloadStatus: Int = Constants.DOWNLOAD_STATUS_PENDING
+) {
+    /**
+     * Checks if this word has an available audio pronunciation.
+     * @return true if audio is downloaded and ready to play
+     */
+    fun hasAudio(): Boolean = 
+        audioFilePath != null && audioDownloadStatus == Constants.DOWNLOAD_STATUS_COMPLETED
+    
+    /**
+     * Gets the first available audio URL from phonetics.
+     * @return URL to the audio file or null if none available
+     */
+    fun getAudioUrl(): String? = 
+        phonetics.firstOrNull { !it.audioUrl.isNullOrBlank() }?.audioUrl
+}
 
 /**
  * Phonetic represents the phonetic representation of a word.

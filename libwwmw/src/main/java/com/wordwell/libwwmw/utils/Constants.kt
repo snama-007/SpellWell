@@ -7,6 +7,20 @@ import com.wordwell.libwwmw.BuildConfig
 object Constants {
     const val MW_API_KEY = "514fdf81-c2ac-42ff-bac6-18634a1a7c81" // Default API key for Merriam-Webster
     const val IS_DUMMY_NETWORK = true // Flag to indicate if dummy network should be used
+    const val DATABASE_NAME = "dictionary.db" // Name of the SQLite database
+
+    // Audio
+    const val AUDIO_DIR_NAME = "audio"
+    const val AUDIO_FILE_EXTENSION = ".mp3"
+    
+    // Download Status
+    const val DOWNLOAD_STATUS_PENDING = 0
+    const val DOWNLOAD_STATUS_IN_PROGRESS = 1
+    const val DOWNLOAD_STATUS_COMPLETED = 2
+    const val DOWNLOAD_STATUS_FAILED = 3
+    
+    // WorkManager Tags
+    const val AUDIO_DOWNLOAD_WORK_TAG = "audio_download_work"
 
     private var encryptedApiKey: String? = null // Encrypted API key storage
 
@@ -18,7 +32,7 @@ object Constants {
         if (encryptedApiKey == null) {
             encryptedApiKey = SecurityUtils.encryptApiKey(
                 context,
-                BuildConfig.MERRIAM_WEBSTER_API_KEY
+                MW_API_KEY
             )
         }
     }

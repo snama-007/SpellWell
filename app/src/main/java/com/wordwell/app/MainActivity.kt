@@ -2,11 +2,11 @@ package com.wordwell.app
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import com.wordwell.libwwmw.di.DictionaryContainer
+import com.wordwell.libwwmw.WordWellServer
 import com.wordwell.libwwmw.presentation.viewmodels.CachedWordsViewModel
 import com.wordwell.libwwmw.presentation.viewmodels.UiState
 import com.wordwell.libwwmw.presentation.viewmodels.WordDetailViewModel
@@ -15,7 +15,7 @@ import com.wordwell.libwwmw.utils.LogUtils
 import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
-    private lateinit var container: DictionaryContainer
+    private lateinit var container: WordWellServer
     private lateinit var wordViewModel: WordDetailViewModel
     private lateinit var cachedWordsViewModel: CachedWordsViewModel
 
@@ -24,7 +24,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         
         // Initialize container with your API key
-        container = DictionaryContainer.getInstance(
+        container = WordWellServer.getInstance(
             context = applicationContext,
             apiKey = Constants.MW_API_KEY,
             useMockApi = false  // Use mock API instead of real network calls
@@ -38,7 +38,8 @@ class MainActivity : AppCompatActivity() {
             "monkey", "bear", "panda", "kangaroo", "squirrel",
             "deer", "dolphin", "shark", "whale", "penguin",
             "octopus", "snail", "frog", "wolf", "bat")
-        cachedWordsViewModel.fetchWordsBySetName("animals", words)
+
+       cachedWordsViewModel.fetchWordsBySetName("animals", words)
 
         lifecycleScope.launch {
             cachedWordsViewModel.uiState.collect{state ->
@@ -85,6 +86,6 @@ class MainActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         // Clear the instance when the activity is destroyed
-        DictionaryContainer.clearInstance()
+        WordWellServer.clearInstance()
     }
 }

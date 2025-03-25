@@ -6,7 +6,9 @@ import androidx.work.WorkManager
 import androidx.work.workDataOf
 import com.wordwell.libwwmw.data.db.dao.SetDao
 import com.wordwell.libwwmw.data.db.dao.WordDao
+import com.wordwell.libwwmw.domain.audio.AudioDownloadManager
 import com.wordwell.libwwmw.domain.models.Word
+import com.wordwell.libwwmw.domain.worker.WordFetchWorker
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
@@ -16,10 +18,11 @@ import javax.inject.Inject
  * WorkManager strategy for fetching word data.
  * Uses WorkManager to perform background operations.
  */
-class WorkManagerWordFetchStrategy @Inject constructor(
+class WordFetchWorkManager @Inject constructor(
     private val context: Context,
     private val wordDao: WordDao,
-    private val setDao: SetDao
+    private val setDao: SetDao,
+    private val audioDownloadManager: AudioDownloadManager? = null
 ) : WordFetchStrategy {
 
     override suspend fun fetchWords(setName: String, words: List<String>,): Flow<List<Word>> = flow {
@@ -40,6 +43,7 @@ class WorkManagerWordFetchStrategy @Inject constructor(
         // Emit words from database as they are updated
         wordDao.getAllWords().map { wordEntities ->
             wordEntities.map {
+                //audioDownloadManager?.processPendingDownloads()
                 Word(
                     it.id,
                     word = it.word,
@@ -65,6 +69,7 @@ class WorkManagerWordFetchStrategy @Inject constructor(
         // Emit words associated with the set
         wordDao.getWordsBySetName(setName).map { wordEntities ->
             wordEntities.map {
+               // audioDownloadManager?.processPendingDownloads()
                 Word(
                     it.id,
                     word = it.word,

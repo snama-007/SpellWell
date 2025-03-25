@@ -1,4 +1,4 @@
-package com.wordwell.libwwmw.di
+package com.wordwell.libwwmw
 
 import android.content.Context
 import com.wordwell.libwwmw.data.repository.DictionaryRepositoryFactory
@@ -9,24 +9,19 @@ import com.wordwell.libwwmw.domain.usecases.GetWordUseCase
 import com.wordwell.libwwmw.presentation.viewmodels.CachedWordsViewModel
 import com.wordwell.libwwmw.presentation.viewmodels.WordDetailViewModel
 import com.wordwell.libwwmw.utils.Constants
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.cancel
 import java.lang.ref.WeakReference
+import javax.inject.Inject
 
 // DictionaryContainer is a simple dependency injection container for managing dependencies
 // related to dictionary operations, including repositories and use cases.
-class DictionaryContainer private constructor(
+class WordWellServer @Inject constructor(
     applicationContext: Context,
     private val apiKey: String,
     private val useMockApi: Boolean = false
 ) {
-    private val coroutineManager = CoroutineManager()
-
     // Store application context as a weak reference to prevent memory leaks
     private val contextRef = WeakReference(applicationContext)
-    
+
     private val repository: DictionaryRepository by lazy {
         val context = contextRef.get() ?: throw IllegalStateException("Context is no longer available")
         DictionaryRepositoryFactory.getInstance(context, apiKey, useMockApi)
@@ -53,13 +48,13 @@ class DictionaryContainer private constructor(
     val cachedWordsViewModelFactory: CachedWordsViewModel.Factory by lazy {
         CachedWordsViewModel.Factory(
             getCachedWordsUseCase,
-            fetchWordsByStrategyUseCase = getWordsBySetUseCase
+            fetchWordsByStrategyUseCase = getWordsBySetUseCase,
         )
     }
 
     companion object {
         @Volatile
-        private var INSTANCE: DictionaryContainer? = null
+        private var INSTANCE: WordWellServer? = null
 
         /**
          * Gets the singleton instance of DictionaryContainer
@@ -73,15 +68,15 @@ class DictionaryContainer private constructor(
             context: Context, 
             apiKey: String, 
             useMockApi: Boolean = false
-        ): DictionaryContainer {
+        ): WordWellServer {
             // Always use application context to prevent memory leaks
             val applicationContext = context.applicationContext
-            
+
             // Initialize API key
             Constants.initializeApiKey(applicationContext, apiKey)
             
             return INSTANCE ?: synchronized(this) {
-                INSTANCE ?: DictionaryContainer(applicationContext, apiKey, useMockApi).also {
+                INSTANCE ?: WordWellServer(applicationContext, apiKey, useMockApi).also {
                     INSTANCE = it
                 }
             }
@@ -100,14 +95,5 @@ class DictionaryContainer private constructor(
                 INSTANCE = null
             }
         }
-    }
-}
-
-class CoroutineManager {
-    private val job = SupervisorJob()
-    val scope = CoroutineScope(Dispatchers.IO + job)
-
-    fun clear() {
-        scope.cancel()
     }
 }

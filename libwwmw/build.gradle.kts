@@ -1,7 +1,12 @@
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.kotlin.kapt)
+    alias(libs.plugins.kotlin.ksp)
+    id("jacoco")
+}
+
+jacoco {
+    toolVersion = "0.8.8" // Use the latest version
 }
 
 android {
@@ -29,13 +34,25 @@ android {
                 "proguard-rules.pro"
             )
         }
+        debug {
+            enableUnitTestCoverage = true
+        }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
+
     kotlinOptions {
         jvmTarget = "17"
+    }
+
+    testOptions {
+        unitTests.apply {
+            isIncludeAndroidResources = true
+            isReturnDefaultValues = true
+        }
     }
 }
 
@@ -49,12 +66,13 @@ dependencies {
     implementation(libs.bundles.room)
     implementation(libs.hilt.android)
     implementation(libs.androidx.work.runtime.ktx)
-    kapt(libs.room.compiler)
+    ksp(libs.room.compiler)
     
     // Network
     implementation(libs.bundles.retrofit)
     implementation(libs.gson)
-    
+    implementation (libs.ketch) // Use latest available version
+
     // Coroutines
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.kotlinx.coroutines.core)
@@ -66,4 +84,79 @@ dependencies {
     androidTestImplementation(libs.androidx.test.ext)
     androidTestImplementation(libs.androidx.test.espresso)
     testImplementation(kotlin("test"))
+}
+
+// JaCoCo task configuration
+tasks.withType<Test> {
+    configure<JacocoTaskExtension> {
+        isIncludeNoLocationClasses = true
+        excludes = listOf("jdk.internal.*")
+    }
+}
+
+tasks.register<JacocoReport>("jacocoTestReport") {
+    dependsOn("testDebugUnitTest")
+
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+    }
+
+    val debugTree = fileTree("${layout.buildDirectory}/tmp/kotlin-classes/debug") {
+        exclude(
+            "**/R.class",
+            "**/R$*.class",
+            "**/BuildConfig.*",
+            "**/Manifest*.*",
+            "**/*Test*.*",
+            "android/**/*.*",
+            "**/*_MembersInjector.class",
+            "**/Dagger*Component.class",
+            "**/*Module_*Factory.class",
+            "**/*_Factory.class",
+            "**/*Module.class"
+        )
+    }
+
+    val mainSrc = "${project.projectDir}/src/main/java"
+
+    sourceDirectories.setFrom(files(mainSrc))
+    classDirectories.setFrom(files(debugTree))
+    executionData.setFrom(fileTree(project.layout.buildDirectory) {
+        include("jacoco/testDebugUnitTest.exec")
+    })
+}
+
+tasks.register<JacocoCoverageVerification>("jacocoTestCoverageVerification") {
+    dependsOn("jacocoTestReport")
+
+    val debugTree = fileTree("${project.layout.buildDirectory}/tmp/kotlin-classes/debug") {
+        exclude(
+            "**/R.class",
+            "**/R$*.class",
+            "**/BuildConfig.*",
+            "**/Manifest*.*",
+            "**/*Test*.*",
+            "android/**/*.*",
+            "**/*_MembersInjector.class",
+            "**/Dagger*Component.class",
+            "**/*Module_*Factory.class",
+            "**/*_Factory.class",
+            "**/*Module.class"
+        )
+    }
+
+    sourceDirectories.setFrom(files("${project.projectDir}/src/main/java"))
+    classDirectories.setFrom(files(debugTree))
+    executionData.setFrom(fileTree(project.layout.buildDirectory) {
+        include("jacoco/testDebugUnitTest.exec")
+    })
+
+    violationRules {
+        rule {
+            limit {
+                minimum = "0.70".toBigDecimal() // 70% coverage threshold
+            }
+        }
+    }
 }

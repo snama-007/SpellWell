@@ -5,6 +5,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.wordwell.libwwmw.data.db.entities.WordEntity
+import com.wordwell.libwwmw.utils.Constants
 import kotlinx.coroutines.flow.Flow
 
 // WordDao defines the data access operations for the WordEntity in the Room database.
@@ -42,6 +43,14 @@ interface WordDao {
     suspend fun insertWord(word: WordEntity)
 
     /**
+     * Inserts multiple word entities into the database.
+     * Replaces any existing entities with the same IDs.
+     * @param words The list of WordEntity objects to insert
+     */
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertWords(words: List<WordEntity>)
+
+    /**
      * Clears all word entities from the database.
      */
     @Query("DELETE FROM words")
@@ -62,18 +71,45 @@ interface WordDao {
     suspend fun keepRecentWords()
 
     /**
-     * Retrieves all word entities associated with a specific set name.
+     * Retrieves word entities associated with a specific set name.
      * @param setName The name of the set to query
-     * @return A Flow emitting a list of WordEntities associated with the set name
+     * @return A Flow emitting a list of WordEntities associated with the set
      */
     @Query("SELECT * FROM words WHERE setName = :setName ORDER BY timestamp DESC")
     fun getWordsBySetName(setName: String): Flow<List<WordEntity>>
 
     /**
-     * Inserts multiple word entities into the database.
-     * Replaces any existing entities with the same ID.
-     * @param words The list of WordEntities to insert
+     * Updates the audio file path and download status for a word.
+     * @param wordId The ID of the word to update
+     * @param audioFilePath The local path to the audio file
+     * @param status The new download status
      */
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertWords(words: List<WordEntity>)
+    @Query("UPDATE words SET audioFilePath = :audioFilePath, audioDownloadStatus = :status WHERE id = :wordId")
+    suspend fun updateAudioInfo(wordId: String, audioFilePath: String, status: Int = Constants.DOWNLOAD_STATUS_COMPLETED)
+    
+    // Add this method to observe changes to a specific word
+    @Query("SELECT * FROM words WHERE id = :id")
+    fun getWordFlow(id: String): Flow<WordEntity?>
+
+    /**
+     * Updates the download status for a word.
+     * @param wordId The ID of the word to update
+     * @param status The new download status
+     */
+    @Query("UPDATE words SET audioDownloadStatus = :status WHERE id = :wordId")
+    suspend fun updateAudioStatus(wordId: String, status: Int)
+
+    /**
+     * Retrieves words that have audio URLs but haven't been downloaded yet.
+     * @param limit Maximum number of words to retrieve (default 10)
+     * @return List of WordEntities with pending audio downloads
+     */
+    @Query("""
+        SELECT * FROM words 
+        WHERE audioUrl IS NOT NULL 
+        AND audioUrl != '' 
+        AND audioDownloadStatus = ${Constants.DOWNLOAD_STATUS_PENDING}
+        LIMIT :limit
+    """)
+    suspend fun getWordsWithPendingAudio(limit: Int = 10): List<WordEntity>
 } 

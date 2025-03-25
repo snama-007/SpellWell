@@ -51,6 +51,7 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.bundles.lifecycle)
+    implementation(libs.androidx.work.runtime.ktx)
     
     // Testing
     testImplementation(libs.junit)
@@ -59,4 +60,7 @@ dependencies {
 
     //timber
     implementation(libs.jakewharton.timber)
+
+    //hilt
+    implementation(libs.hilt.android)
 }

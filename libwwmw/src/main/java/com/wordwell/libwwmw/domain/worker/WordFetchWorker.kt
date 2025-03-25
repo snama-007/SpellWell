@@ -1,4 +1,4 @@
-package com.wordwell.libwwmw.domain.strategy
+package com.wordwell.libwwmw.domain.worker
 
 import android.content.Context
 import androidx.work.CoroutineWorker
@@ -8,6 +8,7 @@ import com.wordwell.libwwmw.data.api.DictionaryMapper
 import com.wordwell.libwwmw.data.db.DictionaryDatabase
 import com.wordwell.libwwmw.data.db.entities.WordEntity
 import com.wordwell.libwwmw.utils.ApiFactory
+import com.wordwell.libwwmw.utils.Constants
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -36,7 +37,9 @@ class WordFetchWorker(context: Context, params: WorkerParameters) : CoroutineWor
                         phonetics = domainWord.phonetics,
                         definitions = domainWord.definitions,
                         timestamp = System.currentTimeMillis(),
-                        setName = setName
+                        setName = setName,
+                        audioUrl = domainWord.getAudioUrl(),
+                        audioDownloadStatus = Constants.DOWNLOAD_STATUS_PENDING
                     )
                 } else null
             }
@@ -44,7 +47,6 @@ class WordFetchWorker(context: Context, params: WorkerParameters) : CoroutineWor
             dao.insertWords(wordEntities)
             val wordsNullable: Array<String?> = words.map { it }.toTypedArray()
             Result.success(Data.Builder().putStringArray("result", wordsNullable).build())
-            //Result.success(Data.Builder().putStringArray("result", words).build())
         } catch (e: Exception) {
             Result.failure()
         }

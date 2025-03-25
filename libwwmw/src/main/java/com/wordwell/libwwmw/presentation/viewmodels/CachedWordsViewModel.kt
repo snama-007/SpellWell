@@ -8,12 +8,13 @@ import com.wordwell.libwwmw.domain.models.Word
 import com.wordwell.libwwmw.domain.usecases.FetchCachedWordsUseCase
 import com.wordwell.libwwmw.domain.usecases.FetchWordsBySetUseCase
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 /**
  * CachedWordsViewModel manages the UI-related data for displaying cached words.
  * It interacts with the use case to load cached words and update the UI state.
  */
-class CachedWordsViewModel(
+class CachedWordsViewModel @Inject constructor(
     private val getCachedWordsUseCase: FetchCachedWordsUseCase,
     private val fetchWordsByStrategyUseCase: FetchWordsBySetUseCase
 ) : BaseViewModel<List<Word>>() {
@@ -44,14 +45,18 @@ class CachedWordsViewModel(
             if (words.isEmpty()) {
                 fetchWordsByStrategyUseCase(setName).collect { result ->
                     when (result) {
-                        is DictionaryFetchResult.Success -> setSuccess(result.data)
+                        is DictionaryFetchResult.Success -> {
+                            setSuccess(result.data)
+                        }
                         else -> setError("Failed to load cached words")
                     }
                 }
             } else {
                 fetchWordsByStrategyUseCase(setName, words).collect { result ->
                     when (result) {
-                        is DictionaryFetchResult.Success -> setSuccess(result.data)
+                        is DictionaryFetchResult.Success -> {
+                            setSuccess(result.data)
+                        }
                         else -> setError("Failed to load cached words")
                     }
                 }
@@ -65,7 +70,7 @@ class CachedWordsViewModel(
      */
     class Factory(
         private val getCachedWordsUseCase: FetchCachedWordsUseCase,
-        private val fetchWordsByStrategyUseCase: FetchWordsBySetUseCase
+        private val fetchWordsByStrategyUseCase: FetchWordsBySetUseCase,
     ) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {

@@ -34,7 +34,7 @@ interface DictionaryRepository {
      * @param setName The name of the set to retrieve words for
      * @return Flow of words list belonging to the specified set
      */
-    suspend fun getWordsBySetName(setName: String, words: List<String>): Flow<DictionaryFetchResult<List<Word>>>
+    suspend fun getWordsBySetName(setName: String, words: List<String> = emptyList()): Flow<DictionaryFetchResult<List<Word>>>
 
     /**
      * Clears the word cache

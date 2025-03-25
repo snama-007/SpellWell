@@ -12,11 +12,13 @@ import com.wordwell.libwwmw.domain.models.Definition
 import com.wordwell.libwwmw.domain.models.DictionaryFetchResult
 import com.wordwell.libwwmw.domain.models.Phonetic
 import com.wordwell.libwwmw.domain.models.Word
+import com.wordwell.libwwmw.utils.Constants
 import junit.framework.Assert.assertEquals
 import junit.framework.Assert.assertTrue
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
@@ -53,7 +55,11 @@ class DictionaryRepositoryImplTest {
         word = testWord.word,
         phonetics = testWord.phonetics,
         definitions = testWord.definitions,
-        timestamp = testWord.timestamp
+        timestamp = testWord.timestamp,
+        setName = "test_set",
+        audioFilePath = "",
+        audioDownloadStatus = Constants.DOWNLOAD_STATUS_PENDING ,
+        audioUrl = testWord.phonetics.get(0).audioUrl,
     )
 
     @Before
@@ -64,7 +70,10 @@ class DictionaryRepositoryImplTest {
         `when`(connectivityManager.activeNetwork).thenReturn(mock())
         `when`(connectivityManager.getNetworkCapabilities(any())).thenReturn(networkCapabilities)
         
-        repository = DictionaryRepositoryImpl(api, db, context, apiKey)
+        repository = DictionaryRepositoryImpl(
+            api, db, context, apiKey,
+            audioDownloadManager =
+        )
     }
 
     @Test
@@ -126,7 +135,7 @@ class DictionaryRepositoryImplTest {
         val result = repository.getCachedWords()
 
         // Then
-        val words = result.first()
+        val words = result.toList()
         assertEquals(1, words.size)
         assertEquals(testWord, words[0])
     }

@@ -7,9 +7,10 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.wordwell.libwwmw.data.db.dao.SetDao
 import com.wordwell.libwwmw.data.db.dao.WordDao
+import com.wordwell.libwwmw.data.db.entities.SetEntity
 import com.wordwell.libwwmw.data.db.entities.WordConverters
 import com.wordwell.libwwmw.data.db.entities.WordEntity
-import com.wordwell.libwwmw.data.db.entities.SetEntity
+import com.wordwell.libwwmw.utils.Constants
 
 // DictionaryDatabase is the Room database for storing dictionary words and sets.
 // It provides access to the WordDao and SetDao for performing database operations.
@@ -37,7 +38,7 @@ abstract class DictionaryDatabase : RoomDatabase() {
                 Room.databaseBuilder(
                     context.applicationContext,
                     DictionaryDatabase::class.java,
-                    "dictionary.db"
+                    Constants.DATABASE_NAME
                 ).fallbackToDestructiveMigration().build().also { INSTANCE = it }
             }
         }
