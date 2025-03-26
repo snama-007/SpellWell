@@ -4,13 +4,13 @@ import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.NavHostFragment
 import com.google.android.material.snackbar.Snackbar
 import com.wordwell.app.util.MockWordsData
 import com.wordwell.app.util.NotificationPermissionHelper
 import com.wordwell.feature.wordpractice.WordPracticeFeature
 import com.wordwell.libwwmw.WordWellServer
 import com.wordwell.libwwmw.presentation.viewmodels.CachedWordsViewModel
-import com.wordwell.libwwmw.presentation.viewmodels.WordDetailViewModel
 import com.wordwell.libwwmw.utils.Constants
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
@@ -24,6 +24,8 @@ class MainActivity : AppCompatActivity() {
     lateinit var wordPracticeFeature: WordPracticeFeature
     private lateinit var container: WordWellServer
     private lateinit var cachedWordsViewModel: CachedWordsViewModel
+    private lateinit var navHostFragment: NavHostFragment
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         loadMockData()
@@ -31,16 +33,23 @@ class MainActivity : AppCompatActivity() {
 
         if (savedInstanceState == null) {
             // Create NavHostFragment
-            val navHostFragment = wordPracticeFeature.getNavHostFragment()
+            navHostFragment = wordPracticeFeature.getNavHostFragment()
             
             // Add NavHostFragment to container
             supportFragmentManager.beginTransaction()
                 .replace(R.id.nav_host_container, navHostFragment)
-                .setPrimaryNavigationFragment(navHostFragment) // this is important for proper navigation
+                .setPrimaryNavigationFragment(navHostFragment)
                 .commit()
+        } else {
+            // Restore NavHostFragment from savedInstanceState
+            navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_container) as NavHostFragment
         }
 
         checkAndRequestNotificationPermission()
+    }
+
+    override fun onSupportNavigateUp(): Boolean {
+        return navHostFragment.navController.navigateUp() || super.onSupportNavigateUp()
     }
 
     private fun checkAndRequestNotificationPermission() {

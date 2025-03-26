@@ -133,11 +133,8 @@ class WordCardFragment : Fragment() {
     }
 
     private fun setupToolbar() {
-        binding.toolbar.apply {
-            title = args.setName.uppercase()
-            setNavigationOnClickListener {
-                findNavController().navigateUp()
-            }
+        binding.toolbar.setNavigationOnClickListener {
+            findNavController().navigateUp()
         }
     }
 
