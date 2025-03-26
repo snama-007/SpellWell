@@ -4,12 +4,14 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AnimationUtils
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
+import com.wordwell.feature.wordpractice.R
 import com.wordwell.feature.wordpractice.databinding.FragmentWordCardBinding
 import com.wordwell.feature.wordpractice.presentation.adapter.WordCardAdapter
 import com.wordwell.libwwmw.utils.LogUtils
@@ -57,6 +59,16 @@ class WordCardFragment : Fragment() {
             onFavoriteClick = { word ->
                 LogUtils.log("Toggle favorite for: ${word.word}")
                 viewModel.toggleFavorite(word)
+            },
+            onNextClick = { position ->
+                if (!viewModel.moveToNextWord()) {
+                    showRubberBandEffect()
+                }
+            },
+            onPreviousClick = { position ->
+                if (!viewModel.moveToPreviousWord()) {
+                    showRubberBandEffect()
+                }
             }
         )
 
@@ -109,15 +121,24 @@ class WordCardFragment : Fragment() {
                 wordCardAdapter.submitList(listOf(it))
             }
         }
+
+        viewModel.totalCards.observe(viewLifecycleOwner) { total ->
+            wordCardAdapter.setTotalCount(total)
+        }
     }
 
     private fun setupToolbar() {
         binding.toolbar.apply {
-            title = "Practice: ${args.setName}"
+            title = args.setName
             setNavigationOnClickListener {
                 requireActivity().onBackPressedDispatcher.onBackPressed()
             }
         }
+    }
+
+    private fun showRubberBandEffect() {
+        val animation = AnimationUtils.loadAnimation(requireContext(), R.anim.rubber_band)
+        binding.wordCardRecyclerView.startAnimation(animation)
     }
 
     override fun onDestroyView() {
