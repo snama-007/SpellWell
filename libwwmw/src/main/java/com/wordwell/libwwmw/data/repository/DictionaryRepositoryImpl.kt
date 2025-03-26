@@ -11,6 +11,7 @@ import com.wordwell.libwwmw.data.db.entities.toWordEntity
 import com.wordwell.libwwmw.domain.audio.AudioDownloadManager
 import com.wordwell.libwwmw.domain.models.DictionaryFetchResult
 import com.wordwell.libwwmw.domain.models.Word
+import com.wordwell.libwwmw.domain.models.WordSet
 import com.wordwell.libwwmw.domain.repository.DictionaryRepository
 import com.wordwell.libwwmw.domain.strategy.DataFetchStrategySelector
 import com.wordwell.libwwmw.utils.Constants
@@ -33,6 +34,7 @@ class DictionaryRepositoryImpl @Inject constructor(
 ) : DictionaryRepository {
 
     private val dao = db.wordDao()
+    private val setDao = db.setDao()
     private val networkFetchStrategy = DataFetchStrategySelector(context, audioDownloadManager).selectStrategy()
     /**
      * Fetches a single word from the network and stores it locally.
@@ -82,7 +84,22 @@ class DictionaryRepositoryImpl @Inject constructor(
             emit(DictionaryFetchResult.Success(words))
         }
     }
-    
+
+    override suspend fun getCachedSets(): Flow<DictionaryFetchResult<List<WordSet>>>  = flow{
+        LogUtils.log("Getting cached words")
+        setDao.getAllSets().map { setEntities ->
+            setEntities.map { entity ->
+                entity.toWordSet(
+                    id = entity.id,
+                    name = entity.name,
+                    numberOfWords = entity.numberOfWords
+                )
+            }
+        }.collect { sets ->
+            emit(DictionaryFetchResult.Success(sets))
+        }
+    }
+
     /**
      * Retrieves the current set of words associated with a specific set.
      * @param setName The name of the set to retrieve words for.

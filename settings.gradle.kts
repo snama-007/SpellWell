@@ -23,5 +23,7 @@ dependencyResolutionManagement {
 
 rootProject.name = "wordwell"
 include(":app")
+include(":demo-app")
 include(":libwwmw")
+include(":feature-wordpractice")
  

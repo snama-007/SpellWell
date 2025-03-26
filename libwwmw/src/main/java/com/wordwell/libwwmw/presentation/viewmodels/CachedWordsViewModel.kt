@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.wordwell.libwwmw.domain.models.DictionaryFetchResult
-import com.wordwell.libwwmw.domain.models.Word
+import com.wordwell.libwwmw.domain.models.WWResultData
 import com.wordwell.libwwmw.domain.usecases.FetchCachedWordsUseCase
 import com.wordwell.libwwmw.domain.usecases.FetchWordsBySetUseCase
 import kotlinx.coroutines.launch
@@ -17,7 +17,7 @@ import javax.inject.Inject
 class CachedWordsViewModel @Inject constructor(
     private val getCachedWordsUseCase: FetchCachedWordsUseCase,
     private val fetchWordsByStrategyUseCase: FetchWordsBySetUseCase
-) : BaseViewModel<List<Word>>() {
+) : BaseViewModel<WWResultData>() {
 
     init {
        // loadCachedWords()
@@ -32,12 +32,33 @@ class CachedWordsViewModel @Inject constructor(
             setLoading()
             getCachedWordsUseCase().collect { result ->
                 when (result) {
-                    is DictionaryFetchResult.Success -> setSuccess(result.data)
+                    is DictionaryFetchResult.Success -> setSuccess(WWResultData.WordResult("", result.data))
                     else -> setError("Failed to load cached words")
                 }
             }
         }
     }
+
+    fun fetchAllSets() {
+        viewModelScope.launch {
+            setLoading()
+            fetchWordsByStrategyUseCase().collect { result ->
+                when (result) {
+                    is DictionaryFetchResult.Success -> setSuccess(WWResultData.WordSetResult(result.data))
+                    else -> setError("Failed to load cached words")
+                }
+            }
+
+        }
+    }
+
+    /**
+     * Fetches words based on the provided set name and words.
+     * Updates the UI state based on the fetched words.
+     * @param setName The name of the set to fetch words from.
+     * @param words Optional list of words to filter the results.
+     * (Default value = emptyList())
+     **/
 
     fun fetchWordsBySetName(setName: String, words: List<String> = emptyList()) {
         viewModelScope.launch {
@@ -46,7 +67,7 @@ class CachedWordsViewModel @Inject constructor(
                 fetchWordsByStrategyUseCase(setName).collect { result ->
                     when (result) {
                         is DictionaryFetchResult.Success -> {
-                            setSuccess(result.data)
+                            setSuccess(WWResultData.WordResult("", result.data))
                         }
                         else -> setError("Failed to load cached words")
                     }
@@ -55,7 +76,7 @@ class CachedWordsViewModel @Inject constructor(
                 fetchWordsByStrategyUseCase(setName, words).collect { result ->
                     when (result) {
                         is DictionaryFetchResult.Success -> {
-                            setSuccess(result.data)
+                            setSuccess(WWResultData.WordResult("", result.data))
                         }
                         else -> setError("Failed to load cached words")
                     }

@@ -1,6 +1,8 @@
 package com.wordwell.libwwmw.domain.models
 
+import android.os.Parcelable
 import com.wordwell.libwwmw.utils.Constants
+import kotlinx.parcelize.Parcelize
 
 /**
  * Word represents a dictionary word with its definitions and phonetics.
@@ -13,7 +15,8 @@ import com.wordwell.libwwmw.utils.Constants
  * @property audioFilePath Local path to the audio file
  * @property audioDownloadStatus Status of audio download
  */
-data class Word(
+@Parcelize
+data class Word (
     val id: String,
     val word: String,
     val phonetics: List<Phonetic>,
@@ -21,7 +24,7 @@ data class Word(
     val timestamp: Long = System.currentTimeMillis(),
     val audioFilePath: String? = null,
     val audioDownloadStatus: Int = Constants.DOWNLOAD_STATUS_PENDING
-) {
+): Parcelable {
     /**
      * Checks if this word has an available audio pronunciation.
      * @return true if audio is downloaded and ready to play
@@ -42,10 +45,11 @@ data class Word(
  * @property text IPA (International Phonetic Alphabet) text
  * @property audioUrl URL to pronunciation audio file
  */
+@Parcelize
 data class Phonetic(
     val text: String,
     val audioUrl: String? = null
-)
+): Parcelable
 
 /**
  * Definition represents the definition of a word.
@@ -53,8 +57,9 @@ data class Phonetic(
  * @property meaning The actual definition text
  * @property examples Usage examples
  */
+@Parcelize
 data class Definition(
     val partOfSpeech: String,
     val meaning: String,
     val examples: List<String> = emptyList()
-) 
+): Parcelable

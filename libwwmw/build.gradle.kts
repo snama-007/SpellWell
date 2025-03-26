@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.ksp)
     id("jacoco")
+    id ("kotlin-parcelize")
 }
 
 jacoco {
@@ -61,7 +62,8 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.bundles.lifecycle)
-    
+    implementation(libs.kotlinx.serialization.json)
+
     // Room
     implementation(libs.bundles.room)
     implementation(libs.hilt.android)

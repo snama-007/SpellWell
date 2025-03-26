@@ -1,7 +1,9 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.kotlin.kapt)
+    alias(libs.plugins.hilt.android)
+    alias(libs.plugins.kotlin.ksp)
+    alias(libs.plugins.navigation.safeargs)
 }
 
 android {
@@ -22,6 +24,7 @@ android {
 
     buildFeatures {
         buildConfig = true
+        viewBinding = true
     }
 
     buildTypes {
@@ -46,21 +49,29 @@ android {
 
 dependencies {
     implementation(project(":libwwmw"))
-    
+    implementation(project(":feature-wordpractice"))
+
     // AndroidX
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.bundles.lifecycle)
     implementation(libs.androidx.work.runtime.ktx)
     
+    // Material Design
+    implementation(libs.material)
+    
+    // Navigation
+    implementation(libs.bundles.navigation)
+    
+    // Hilt
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.compiler)
+    
     // Testing
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.test.ext)
     androidTestImplementation(libs.androidx.test.espresso)
 
-    //timber
+    // Timber
     implementation(libs.jakewharton.timber)
-
-    //hilt
-    implementation(libs.hilt.android)
 }

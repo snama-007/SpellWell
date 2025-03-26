@@ -2,6 +2,7 @@ package com.wordwell.libwwmw.domain.usecases
 
 import com.wordwell.libwwmw.domain.models.DictionaryFetchResult
 import com.wordwell.libwwmw.domain.models.Word
+import com.wordwell.libwwmw.domain.models.WordSet
 import com.wordwell.libwwmw.domain.repository.DictionaryRepository
 import kotlinx.coroutines.flow.Flow
 
@@ -19,7 +20,7 @@ class FetchWordsBySetUseCase(
      * @param useWorkManager Whether to use WorkManager for fetching data
      * @return Flow of fetched words
      */
-    operator suspend fun invoke(
+    suspend operator fun invoke(
         setName: String,
         words: List<String>,
     ): Flow<DictionaryFetchResult<List<Word>>> {
@@ -32,7 +33,12 @@ class FetchWordsBySetUseCase(
      * @param useWorkManager Whether to use WorkManager for fetching data
      * @return Flow of fetched words
      */
-    operator suspend fun invoke(
+    suspend operator fun invoke(
         setName: String,
     ): Flow<DictionaryFetchResult<List<Word>>> = repository.getWordsBySetName(setName)
+
+
+    suspend operator fun invoke(): Flow<DictionaryFetchResult<List<WordSet>>> {
+        return repository.getCachedSets()
+    }
 } 

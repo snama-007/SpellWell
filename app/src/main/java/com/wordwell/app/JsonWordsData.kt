@@ -5,7 +5,7 @@ object JsonWordsData {
 {
   "sets": [
     {
-      "category": "Animals",
+      "name": "Animals",
       "words": [
         "tiger", "fox", "elephant", "lion", "giraffe",
         "zebra", "rabbit", "dog", "cat", "horse",
@@ -15,7 +15,7 @@ object JsonWordsData {
       ]
     },
     {
-      "category": "Fruits",
+      "name": "Fruits",
       "words": [
         "apple", "banana", "orange", "grape", "mango",
         "pineapple", "watermelon", "strawberry", "blueberry", "cherry",
@@ -25,7 +25,7 @@ object JsonWordsData {
       ]
     },
     {
-      "category": "Colors",
+      "name": "Colors",
       "words": [
         "red", "blue", "green", "yellow", "orange",
         "purple", "pink", "brown", "black", "white",
@@ -35,7 +35,7 @@ object JsonWordsData {
       ]
     },
     {
-      "category": "Nature",
+      "name": "Nature",
       "words": [
         "tree", "river", "mountain", "ocean", "lake",
         "flower", "cloud", "rain", "sun", "moon",
@@ -45,7 +45,7 @@ object JsonWordsData {
       ]
     },
     {
-      "category": "School Supplies",
+      "name": "School Supplies",
       "words": [
         "pencil", "pen", "eraser", "sharpener", "notebook",
         "paper", "ruler", "scissors", "glue", "marker",
