@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">SpellBee</string>
+    <string name="app_name">WordWell</string>
     <string name="welcome_message">Welcome to SpellBee!</string>
     <string name="enter_name">Enter your name</string>
     <string name="enter_grade">Enter your grade (K-8)</string>

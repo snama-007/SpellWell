@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/word_practice_nav_graph"
+    app:startDestination="@id/wordPracticeFragment">
+
+    <fragment
+        android:id="@+id/wordPracticeFragment"
+        android:name="com.wordwell.feature.wordpractice.presentation.WordPracticeFragment"
+        android:label="Word Practice"
+        tools:layout="@layout/fragment_word_practice">
+        <action
+            android:id="@+id/action_wordPracticeFragment_to_wordCardFragment"
+            app:destination="@id/wordCardFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/wordCardFragment"
+        android:name="com.wordwell.feature.wordpractice.presentation.WordCardFragment"
+        android:label="Word Card"
+        tools:layout="@layout/fragment_word_card">
+        <argument
+            android:name="setName"
+            app:argType="string" />
+        <argument
+            android:name="wordResult"
+            app:argType="com.wordwell.libwwmw.domain.models.WWResultData$WordResult" />
+    </fragment>
+
+</navigation> 

@@ -17,10 +17,13 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+        maven { url = uri("https://jitpack.io") }
     }
 }
 
 rootProject.name = "wordwell"
 include(":app")
+include(":demo-app")
 include(":libwwmw")
+include(":feature-wordpractice")
  

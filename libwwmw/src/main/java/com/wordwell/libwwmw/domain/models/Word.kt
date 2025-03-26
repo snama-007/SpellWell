@@ -1,5 +1,9 @@
 package com.wordwell.libwwmw.domain.models
 
+import android.os.Parcelable
+import com.wordwell.libwwmw.utils.Constants
+import kotlinx.parcelize.Parcelize
+
 /**
  * Word represents a dictionary word with its definitions and phonetics.
  * It is a data class used to encapsulate word-related information.
@@ -8,24 +12,44 @@ package com.wordwell.libwwmw.domain.models
  * @property phonetics List of phonetic representations
  * @property definitions List of word definitions
  * @property timestamp When the word was last fetched/updated
+ * @property audioFilePath Local path to the audio file
+ * @property audioDownloadStatus Status of audio download
  */
-data class Word(
+@Parcelize
+data class Word (
     val id: String,
     val word: String,
     val phonetics: List<Phonetic>,
     val definitions: List<Definition>,
-    val timestamp: Long = System.currentTimeMillis()
-)
+    val timestamp: Long = System.currentTimeMillis(),
+    val audioFilePath: String? = null,
+    val audioDownloadStatus: Int = Constants.DOWNLOAD_STATUS_PENDING
+): Parcelable {
+    /**
+     * Checks if this word has an available audio pronunciation.
+     * @return true if audio is downloaded and ready to play
+     */
+    fun hasAudio(): Boolean = 
+        audioFilePath != null && audioDownloadStatus == Constants.DOWNLOAD_STATUS_COMPLETED
+    
+    /**
+     * Gets the first available audio URL from phonetics.
+     * @return URL to the audio file or null if none available
+     */
+    fun getAudioUrl(): String? = 
+        phonetics.firstOrNull { !it.audioUrl.isNullOrBlank() }?.audioUrl
+}
 
 /**
  * Phonetic represents the phonetic representation of a word.
  * @property text IPA (International Phonetic Alphabet) text
  * @property audioUrl URL to pronunciation audio file
  */
+@Parcelize
 data class Phonetic(
     val text: String,
     val audioUrl: String? = null
-)
+): Parcelable
 
 /**
  * Definition represents the definition of a word.
@@ -33,8 +57,9 @@ data class Phonetic(
  * @property meaning The actual definition text
  * @property examples Usage examples
  */
+@Parcelize
 data class Definition(
     val partOfSpeech: String,
     val meaning: String,
     val examples: List<String> = emptyList()
-) 
+): Parcelable

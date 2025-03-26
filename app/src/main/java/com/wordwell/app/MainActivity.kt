@@ -1,90 +1,109 @@
 package com.wordwell.app
 
+import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
-import com.wordwell.libwwmw.di.DictionaryContainer
+import androidx.navigation.fragment.NavHostFragment
+import com.google.android.material.snackbar.Snackbar
+import com.wordwell.app.util.MockWordsData
+import com.wordwell.app.util.NotificationPermissionHelper
+import com.wordwell.feature.wordpractice.WordPracticeFeature
+import com.wordwell.libwwmw.WordWellServer
 import com.wordwell.libwwmw.presentation.viewmodels.CachedWordsViewModel
-import com.wordwell.libwwmw.presentation.viewmodels.UiState
-import com.wordwell.libwwmw.presentation.viewmodels.WordDetailViewModel
 import com.wordwell.libwwmw.utils.Constants
-import com.wordwell.libwwmw.utils.LogUtils
-import kotlinx.coroutines.launch
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
-    private lateinit var container: DictionaryContainer
-    private lateinit var wordViewModel: WordDetailViewModel
-    private lateinit var cachedWordsViewModel: CachedWordsViewModel
 
+    @Inject 
+    lateinit var wordPracticeFeature: WordPracticeFeature
+    private lateinit var container: WordWellServer
+    private lateinit var cachedWordsViewModel: CachedWordsViewModel
+    private lateinit var navHostFragment: NavHostFragment
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        
-        // Initialize container with your API key
-        container = DictionaryContainer.getInstance(
-            context = applicationContext,
-            apiKey = Constants.MW_API_KEY,
-            useMockApi = false  // Use mock API instead of real network calls
-        )
+        loadMockData()
+        setContentView(R.layout.activity_main)
 
-        val factory = container.wordDetailViewModelFactory
-        wordViewModel = ViewModelProvider(this, factory)[WordDetailViewModel::class.java]
-        cachedWordsViewModel = ViewModelProvider(this, container.cachedWordsViewModelFactory)[CachedWordsViewModel::class.java]
-        val words = listOf( "tiger", "fox", "elephant", "lion", "giraffe",
-            "zebra", "rabbit", "dog", "cat", "horse",
-            "monkey", "bear", "panda", "kangaroo", "squirrel",
-            "deer", "dolphin", "shark", "whale", "penguin",
-            "octopus", "snail", "frog", "wolf", "bat")
-        cachedWordsViewModel.fetchWordsBySetName("animals", words)
-
-        lifecycleScope.launch {
-            cachedWordsViewModel.uiState.collect{state ->
-                when(state){
-                    is UiState.Success ->
-                        LogUtils.log("Data : $state.data.toString()")
-                    else -> {}
-                }
-            }
+        if (savedInstanceState == null) {
+            // Create NavHostFragment
+            navHostFragment = wordPracticeFeature.getNavHostFragment()
+            
+            // Add NavHostFragment to container
+            supportFragmentManager.beginTransaction()
+                .replace(R.id.nav_host_container, navHostFragment)
+                .setPrimaryNavigationFragment(navHostFragment)
+                .commit()
+        } else {
+            // Restore NavHostFragment from savedInstanceState
+            navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_container) as NavHostFragment
         }
 
-        // Only call this once
-        //wordViewModel.lookupWord("hello")
-        
-        // Use lifecycleScope and repeatOnLifecycle for proper lifecycle management
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                wordViewModel.uiState.collect { state ->
-                    // Handle state updates
-                    when (state) {
-                        is UiState.Initial -> {
-                            // Handle initial state
-                        }
+        checkAndRequestNotificationPermission()
+    }
 
-                        is UiState.Loading-> {
-                            // Handle loading state
-                        }
+    override fun onSupportNavigateUp(): Boolean {
+        return navHostFragment.navController.navigateUp() || super.onSupportNavigateUp()
+    }
 
-                        is UiState.Success -> {
-                            // Handle success state
-                            LogUtils.log(state.data.toString())
-                        }
+    private fun checkAndRequestNotificationPermission() {
+        if (!NotificationPermissionHelper.checkNotificationPermission(this)) {
+            if (NotificationPermissionHelper.shouldShowRequestPermissionRationale(this)) {
+                // Show rationale if needed
+                Snackbar.make(
+                    findViewById(android.R.id.content),
+                    "Notifications help you stay updated with your learning progress",
+                    Snackbar.LENGTH_LONG
+                ).setAction("Grant") {
+                    NotificationPermissionHelper.requestNotificationPermission(this)
+                }.show()
+            } else {
+                NotificationPermissionHelper.requestNotificationPermission(this)
+            }
+        }
+    }
 
-                        is UiState.Error -> {
-                            // Handle error state
-                        }
-                        else -> {}
-                    }
-                }
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == 123) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Permission granted, you can now show notifications
+            } else {
+                // Permission denied, handle accordingly
+                Snackbar.make(
+                    findViewById(android.R.id.content),
+                    "Notifications are disabled. You can enable them in settings.",
+                    Snackbar.LENGTH_LONG
+                ).show()
             }
         }
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        // Clear the instance when the activity is destroyed
-        DictionaryContainer.clearInstance()
+    }
+
+    private fun loadMockData(){
+        container = WordWellServer.getInstance(
+            context = applicationContext,
+            apiKey = Constants.MW_API_KEY
+        )
+        val factory = container.cachedWordsViewModelFactory
+        cachedWordsViewModel = ViewModelProvider(this, factory)[CachedWordsViewModel::class.java]
+
+        MockWordsData.wordSetsHashMap.forEach { key, value ->
+            cachedWordsViewModel.fetchWordsBySetName(key, value)
+            runBlocking{delay(300)}
+        }
     }
 }

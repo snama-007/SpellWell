@@ -3,6 +3,7 @@ package com.wordwell.libwwmw.domain.strategy
 import android.content.Context
 import com.wordwell.libwwmw.data.db.DictionaryDatabase
 import com.wordwell.libwwmw.data.repository.DictionaryRepositoryFactory
+import com.wordwell.libwwmw.domain.audio.AudioDownloadManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 
@@ -21,14 +22,18 @@ interface StrategySelector {
 /**
  * Default implementation of StrategySelector.
  */
-class DataFetchStrategySelector(private val context: Context) : StrategySelector {
+class DataFetchStrategySelector(
+    private val context: Context,
+    private val audioDownloadManager: AudioDownloadManager? = null)
+    : StrategySelector {
     override fun selectStrategy(useWorkManager: Boolean): WordFetchStrategy {
         val db = DictionaryDatabase.getInstance(context)
         return if (useWorkManager) {
-            WorkManagerWordFetchStrategy(
+            WordFetchWorkManager(
                 context,
                 wordDao = db.wordDao(),
-                setDao = db.setDao()
+                setDao = db.setDao(),
+                audioDownloadManager = audioDownloadManager
             )
         } else {
             CoroutineWordFetchStrategy(

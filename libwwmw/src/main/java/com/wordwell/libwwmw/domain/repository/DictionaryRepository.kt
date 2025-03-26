@@ -2,6 +2,7 @@ package com.wordwell.libwwmw.domain.repository
 
 import com.wordwell.libwwmw.domain.models.DictionaryFetchResult
 import com.wordwell.libwwmw.domain.models.Word
+import com.wordwell.libwwmw.domain.models.WordSet
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -23,6 +24,12 @@ interface DictionaryRepository {
     suspend fun getCachedWords(): Flow<DictionaryFetchResult<List<Word>>>
 
     /**
+     * Retrieves all cached sets
+     * @return Flow of cached sets list
+     */
+    suspend fun getCachedSets(): Flow<DictionaryFetchResult<List<WordSet>>>
+
+    /**
      * Retrieves all words associated with a specific set
      * @param setName The name of the set to retrieve words for
      * @return Flow of words list belonging to the specified set
@@ -34,7 +41,7 @@ interface DictionaryRepository {
      * @param setName The name of the set to retrieve words for
      * @return Flow of words list belonging to the specified set
      */
-    suspend fun getWordsBySetName(setName: String, words: List<String>): Flow<DictionaryFetchResult<List<Word>>>
+    suspend fun getWordsBySetName(setName: String, words: List<String> = emptyList()): Flow<DictionaryFetchResult<List<Word>>>
 
     /**
      * Clears the word cache

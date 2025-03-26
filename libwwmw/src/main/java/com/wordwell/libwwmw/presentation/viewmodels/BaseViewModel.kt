@@ -20,4 +20,4 @@ abstract class BaseViewModel<T> : ViewModel() {
     protected fun setError(message: String) {
         _uiState.value = UiState.Error(message)
     }
-} 
+}

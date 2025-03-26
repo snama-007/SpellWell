@@ -2,8 +2,11 @@ package com.wordwell.libwwmw.data.repository
 
 import android.content.Context
 import com.wordwell.libwwmw.data.db.DictionaryDatabase
+import com.wordwell.libwwmw.domain.audio.AudioDownloadManager
 import com.wordwell.libwwmw.domain.repository.DictionaryRepository
 import com.wordwell.libwwmw.utils.ApiFactory
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 
 // DictionaryRepositoryFactory is responsible for creating and managing instances of DictionaryRepository.
 // It ensures that a single instance of the repository is used throughout the application.
@@ -29,7 +32,12 @@ object DictionaryRepositoryFactory {
                 api = ApiFactory.createApiService(context, useMockApi),
                 db = DictionaryDatabase.getInstance(context),
                 context = context.applicationContext,
-                apiKey = apiKey
+                apiKey = apiKey,
+                audioDownloadManager = AudioDownloadManager(
+                    context,
+                    dictionaryDatabase = DictionaryDatabase.getInstance(context),
+                    coroutineScope = CoroutineScope(Dispatchers.IO)
+                )
             ).also { INSTANCE = it }
         }
     }
