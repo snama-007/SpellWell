@@ -3,10 +3,18 @@ package com.wordwell.app
 import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.snackbar.Snackbar
+import com.wordwell.app.util.MockWordsData
 import com.wordwell.app.util.NotificationPermissionHelper
 import com.wordwell.feature.wordpractice.WordPracticeFeature
+import com.wordwell.libwwmw.WordWellServer
+import com.wordwell.libwwmw.presentation.viewmodels.CachedWordsViewModel
+import com.wordwell.libwwmw.presentation.viewmodels.WordDetailViewModel
+import com.wordwell.libwwmw.utils.Constants
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -14,9 +22,11 @@ class MainActivity : AppCompatActivity() {
 
     @Inject 
     lateinit var wordPracticeFeature: WordPracticeFeature
-
+    private lateinit var container: WordWellServer
+    private lateinit var cachedWordsViewModel: CachedWordsViewModel
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        loadMockData()
         setContentView(R.layout.activity_main)
 
         if (savedInstanceState == null) {
@@ -72,5 +82,19 @@ class MainActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
+    }
+
+    private fun loadMockData(){
+        container = WordWellServer.getInstance(
+            context = applicationContext,
+            apiKey = Constants.MW_API_KEY
+        )
+        val factory = container.cachedWordsViewModelFactory
+        cachedWordsViewModel = ViewModelProvider(this, factory)[CachedWordsViewModel::class.java]
+
+        MockWordsData.wordSetsHashMap.forEach { key, value ->
+            cachedWordsViewModel.fetchWordsBySetName(key, value)
+            runBlocking{delay(300)}
+        }
     }
 }

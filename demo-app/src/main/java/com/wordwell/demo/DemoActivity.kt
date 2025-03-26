@@ -8,14 +8,17 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.wordwell.libwwmw.WordWellServer
 import com.wordwell.libwwmw.domain.models.WWResultData
-import com.wordwell.libwwmw.domain.models.Word
-import com.wordwell.libwwmw.domain.models.WordSet
 import com.wordwell.libwwmw.presentation.viewmodels.CachedWordsViewModel
 import com.wordwell.libwwmw.presentation.viewmodels.UiState
 import com.wordwell.libwwmw.presentation.viewmodels.WordDetailViewModel
 import com.wordwell.libwwmw.utils.Constants
 import com.wordwell.libwwmw.utils.LogUtils
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.coroutineContext
 
 class DemoActivity : AppCompatActivity() {
     private lateinit var container: WordWellServer
@@ -36,18 +39,15 @@ class DemoActivity : AppCompatActivity() {
         val factory = container.wordDetailViewModelFactory
         wordViewModel = ViewModelProvider(this, factory)[WordDetailViewModel::class.java]
         cachedWordsViewModel = ViewModelProvider(this, container.cachedWordsViewModelFactory)[CachedWordsViewModel::class.java]
-        val words = listOf( "tiger", "fox", "elephant", "lion", "giraffe",
-            "zebra", "rabbit", "dog", "cat", "horse",
-            "monkey", "bear", "panda", "kangaroo", "squirrel",
-            "deer", "dolphin", "shark", "whale", "penguin",
-            "octopus", "snail", "frog", "wolf", "bat")
 
-       cachedWordsViewModel.fetchWordsBySetName("animals", words)
+        MockWordsData.wordSetsHashMap.forEach { key, value ->
+            cachedWordsViewModel.fetchWordsBySetName(key, value)
+            runBlocking{delay(300)}
+        }
 
-        cachedWordsViewModel.fetchAllSets()
+        //cachedWordsViewModel.fetchAllSets()
 
         lifecycleScope.launch {
-
             cachedWordsViewModel.uiState.collect { state ->
                 when (state) {
                     is UiState.Success ->

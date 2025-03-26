@@ -128,17 +128,6 @@ class DictionaryRepositoryImpl @Inject constructor(
             }.collect { domainWords ->
                 LogUtils.log("Set $setName cached: ${domainWords.size}")
                 emit(DictionaryFetchResult.Success(domainWords))
-                
-                // Schedule audio downloads for each word with pending audio
-                domainWords.forEach { entity ->
-                    if (entity.audioDownloadStatus == Constants.DOWNLOAD_STATUS_PENDING && 
-                        !entity.getAudioUrl().isNullOrBlank()) {
-                        LogUtils.log("Scheduling audio download for cached word: ${entity.id}")
-                        audioDownloadManager?.scheduleAudioDownload(entity.id,
-                            entity.getAudioUrl().toString()
-                        )
-                    }
-                }
             }
             return@flow // Return after processing local words
         }
@@ -151,14 +140,6 @@ class DictionaryRepositoryImpl @Inject constructor(
                 // Use the network strategy to fetch words
                 networkFetchStrategy.fetchWords(setName, words).collect { result ->
                     emit(DictionaryFetchResult.Success(result))
-                    
-                    // Explicitly schedule audio downloads for each fetched word
-                    result.forEach { word ->
-                        word.getAudioUrl()?.let { audioUrl ->
-                            LogUtils.log("Scheduling audio download for fetched word: ${word.id}")
-                            audioDownloadManager?.scheduleAudioDownload(word.id, audioUrl)
-                        }
-                    }
                 }
             } catch (e: Exception) {
                 emit(DictionaryFetchResult.Error("Failed to fetch words for set: ${e.message}", e))

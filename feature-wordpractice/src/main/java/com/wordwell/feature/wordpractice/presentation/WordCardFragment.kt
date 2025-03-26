@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.view.animation.AnimationUtils
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
@@ -125,13 +126,17 @@ class WordCardFragment : Fragment() {
         viewModel.totalCards.observe(viewLifecycleOwner) { total ->
             wordCardAdapter.setTotalCount(total)
         }
+
+        viewModel.currentCardNumber.observe(viewLifecycleOwner) { current ->
+            wordCardAdapter.setCurrentPosition(current)
+        }
     }
 
     private fun setupToolbar() {
         binding.toolbar.apply {
-            title = args.setName
+            title = args.setName.uppercase()
             setNavigationOnClickListener {
-                requireActivity().onBackPressedDispatcher.onBackPressed()
+                findNavController().navigateUp()
             }
         }
     }

@@ -40,7 +40,7 @@ class WordSetAdapter(
 
         fun bind(wordSet: WordSet) {
             binding.apply {
-                setNameTextView.text = wordSet.name
+                setNameTextView.text = wordSet.name.uppercase()
                 setDescriptionTextView.text = wordSet.name
                 wordCountTextView.text = wordSet.numberOfWords.toString()
             }

@@ -17,6 +17,7 @@ class WordCardAdapter(
 ) : ListAdapter<Word, WordCardAdapter.WordCardViewHolder>(WordCardDiffCallback()) {
 
     private var totalCount: Int = 0
+    private var currentPosition: Int = 0
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): WordCardViewHolder {
         val binding = ItemWordCardBinding.inflate(
@@ -35,6 +36,12 @@ class WordCardAdapter(
 
     fun setTotalCount(count: Int) {
         totalCount = count
+        notifyDataSetChanged()
+
+    }
+
+    fun setCurrentPosition(position: Int) {
+        currentPosition = position
         notifyDataSetChanged()
     }
 
@@ -90,10 +97,17 @@ class WordCardAdapter(
             binding.apply {
                 wordTextView.text = word.word
                 phoneticsTextView.text = "/${word.phonetics[0].text}/"
-                definitionTextView.text = word.definitions[0].meaning
-                cardCountTextView.text = "${adapterPosition + 1} / $totalCount"
+                definitionTextView.text = extractMeanings(word.definitions[0].meaning).toString()
+                cardCountTextView.text = "${currentPosition} / $totalCount"
             }
         }
+    }
+
+    fun extractMeanings(jsonString: String): List<String> {
+        val regex = """\{bc\}(.*?)\}""".toRegex()
+        val matches = regex.findAll(jsonString)
+        val meanings = matches.map { it.groupValues[1].plus("\n") }.toSet()
+        return meanings.toList()
     }
 
     private class WordCardDiffCallback : DiffUtil.ItemCallback<Word>() {
