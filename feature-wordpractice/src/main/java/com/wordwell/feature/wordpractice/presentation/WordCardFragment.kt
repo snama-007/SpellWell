@@ -1,5 +1,6 @@
 package com.wordwell.feature.wordpractice.presentation
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -44,6 +45,23 @@ class WordCardFragment : Fragment() {
         setupSwipeGestures()
         setupObservers()
         setupToolbar()
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+
+
+            LogUtils.log("onAttach ${requireActivity().supportFragmentManager.backStackEntryCount}")
+    }
+
+    override fun onResume() {
+        super.onResume()
+        LogUtils.log("resume ${requireActivity().supportFragmentManager.backStackEntryCount}")
+    }
+
+    override fun onPause() {
+        super.onPause()
+        LogUtils.log("pause ${requireActivity().supportFragmentManager.backStackEntryCount}")
     }
 
     private fun setupViewModel() {
@@ -137,7 +155,7 @@ class WordCardFragment : Fragment() {
             title = args.setName.uppercase()
             setNavigationIcon(R.drawable.ic_close)
             setNavigationOnClickListener {
-                findNavController().popBackStack()
+                findNavController().navigateUp()
             }
         }
     }

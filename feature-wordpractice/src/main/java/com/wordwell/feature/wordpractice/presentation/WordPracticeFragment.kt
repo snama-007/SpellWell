@@ -11,6 +11,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.wordwell.feature.wordpractice.Utils.PermissionHelper
 import com.wordwell.feature.wordpractice.databinding.FragmentWordPracticeBinding
 import com.wordwell.feature.wordpractice.presentation.adapter.WordSetAdapter
@@ -56,14 +57,33 @@ class WordPracticeFragment : Fragment() {
             LogUtils.log("Selected set: ${wordSet.name}")
             currentSetName = wordSet.name
             viewModel.loadWordsForSet(wordSet.name)
-            provideHapticFeedback()
         }
 
         binding.wordSetsRecyclerView.apply {
-            layoutManager = CascadeLayoutManager(requireContext())
+            layoutManager = LinearLayoutManager(requireContext())
             adapter = wordSetAdapter
-            setHasFixedSize(true)
-            setPadding(paddingLeft, paddingTop, paddingRight + 32, paddingBottom)
+        }
+
+        binding.viewToggleSwitch.setOnCheckedChangeListener { _, isChecked ->
+            // Reset all transformations before changing layout
+            for (i in 0 until binding.wordSetsRecyclerView.childCount) {
+                binding.wordSetsRecyclerView.getChildAt(i)?.let { child ->
+                    child.rotation = 0f
+                    child.translationY = 0f
+                    child.scaleX = 1f
+                    child.scaleY = 1f
+                    child.alpha = 1f
+                }
+            }
+
+            val newLayoutManager = if (isChecked) {
+                StackedLayoutManager(requireContext())
+            } else {
+                LinearLayoutManager(requireContext())
+            }
+            
+            binding.wordSetsRecyclerView.layoutManager = newLayoutManager
+            wordSetAdapter.notifyDataSetChanged()
         }
     }
 

@@ -50,6 +50,7 @@ class MainActivity : AppCompatActivity() {
             // Add NavHostFragment to container
             supportFragmentManager.beginTransaction()
                 .replace(R.id.nav_host_container, navHostFragment)
+                .addToBackStack(null)
                 .setPrimaryNavigationFragment(navHostFragment)
                 .commit()
         } else {
@@ -62,6 +63,20 @@ class MainActivity : AppCompatActivity() {
 
     override fun onSupportNavigateUp(): Boolean {
         return navHostFragment.navController.navigateUp() || super.onSupportNavigateUp()
+    }
+
+    override fun onNavigateUp(): Boolean {
+        return navHostFragment.navController.navigateUp() || super.onNavigateUp()
+
+    }
+
+    @Deprecated("kotlin")
+    override fun onBackPressed() {
+        if (supportFragmentManager.backStackEntryCount > 0) {
+            supportFragmentManager.popBackStack()
+        } else {
+            super.onBackPressed()
+        }
     }
 
     private fun checkAndRequestNotificationPermission() {

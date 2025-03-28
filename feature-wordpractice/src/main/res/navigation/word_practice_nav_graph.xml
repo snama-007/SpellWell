@@ -26,6 +26,7 @@
         <argument
             android:name="wordResult"
             app:argType="com.wordwell.libwwmw.domain.models.WWResultData$WordResult" />
+
     </fragment>
 
 </navigation> 
