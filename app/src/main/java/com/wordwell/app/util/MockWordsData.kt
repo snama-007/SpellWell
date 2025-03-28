@@ -20,7 +20,7 @@ object MockWordsData {
             "red", "blue", "green", "yellow", "orange",
             "purple", "pink", "brown", "black", "white",
             "gray", "violet", "indigo", "gold", "silver",
-            "maroon", "cyan", "magenta", "beige", "lavender",
+            "maroon", "magenta", "beige", "lavender",
             "peach", "navy", "teal", "turquoise", "salmon"
         ),
         "Nature" to listOf(

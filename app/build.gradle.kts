@@ -25,6 +25,11 @@ android {
     buildFeatures {
         buildConfig = true
         viewBinding = true
+        compose = true
+    }
+    
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.5.1"
     }
 
     buildTypes {
@@ -50,6 +55,7 @@ android {
 dependencies {
     implementation(project(":libwwmw"))
     implementation(project(":feature-wordpractice"))
+    implementation(project(":feature-wordsearch"))
 
     // AndroidX
     implementation(libs.androidx.core.ktx)
@@ -62,6 +68,10 @@ dependencies {
     
     // Navigation
     implementation(libs.bundles.navigation)
+    
+    // Compose
+    implementation(libs.androidx.activity.compose)
+
     
     // Hilt
     implementation(libs.hilt.android)

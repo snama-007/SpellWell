@@ -21,13 +21,6 @@ plugins {
     alias(libs.plugins.navigation.safeargs) apply false
 }
 
-/*allprojects {
-    repositories {
-        google()
-        mavenCentral()
-    }
-}*/
-
 tasks.register("clean", Delete::class) {
     delete(rootProject.layout.buildDirectory)
 }

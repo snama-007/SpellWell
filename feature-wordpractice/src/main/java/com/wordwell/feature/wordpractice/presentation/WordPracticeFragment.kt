@@ -1,13 +1,17 @@
 package com.wordwell.feature.wordpractice.presentation
 
 import android.os.Bundle
+import android.os.VibrationEffect
+import android.os.Vibrator
+import android.os.VibratorManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.LinearLayoutManager
+import com.wordwell.feature.wordpractice.Utils.PermissionHelper
 import com.wordwell.feature.wordpractice.databinding.FragmentWordPracticeBinding
 import com.wordwell.feature.wordpractice.presentation.adapter.WordSetAdapter
 import com.wordwell.libwwmw.WordWellServer
@@ -52,11 +56,14 @@ class WordPracticeFragment : Fragment() {
             LogUtils.log("Selected set: ${wordSet.name}")
             currentSetName = wordSet.name
             viewModel.loadWordsForSet(wordSet.name)
+            provideHapticFeedback()
         }
 
         binding.wordSetsRecyclerView.apply {
-            layoutManager = LinearLayoutManager(requireContext())
+            layoutManager = CascadeLayoutManager(requireContext())
             adapter = wordSetAdapter
+            setHasFixedSize(true)
+            setPadding(paddingLeft, paddingTop, paddingRight + 32, paddingBottom)
         }
     }
 
@@ -80,7 +87,28 @@ class WordPracticeFragment : Fragment() {
 
     private fun setupToolbar() {
         binding.toolbar.setNavigationOnClickListener {
-            requireActivity().onBackPressedDispatcher.onBackPressed()
+            findNavController().navigateUp()
+        }
+    }
+
+    private fun provideHapticFeedback() {
+        if (!PermissionHelper.checkVibratePermission(requireContext())) {
+            return
+        }
+
+        val vibrator = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+            val vibratorManager = ContextCompat.getSystemService(requireContext(), VibratorManager::class.java)
+            vibratorManager?.defaultVibrator
+        } else {
+            @Suppress("DEPRECATION")
+            ContextCompat.getSystemService(requireContext(), Vibrator::class.java)
+        }
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            vibrator?.vibrate(VibrationEffect.createOneShot(50, VibrationEffect.DEFAULT_AMPLITUDE))
+        } else {
+            @Suppress("DEPRECATION")
+            vibrator?.vibrate(50)
         }
     }
 

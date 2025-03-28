@@ -9,6 +9,7 @@ import com.wordwell.libwwmw.data.db.DictionaryDatabase
 import com.wordwell.libwwmw.data.db.entities.WordEntity
 import com.wordwell.libwwmw.utils.ApiFactory
 import com.wordwell.libwwmw.utils.Constants
+import com.wordwell.libwwmw.utils.LogUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -27,9 +28,10 @@ class WordFetchWorker(context: Context, params: WorkerParameters) : CoroutineWor
         val dao = db.wordDao()
 
         try {
-            val wordEntities = words.mapNotNull { word ->
+          val wordEntities = words.mapNotNull { word ->
                 val response = api.getWord(word)
-                if (response.isNotEmpty()) {
+                val responseWord = response.firstOrNull()
+                responseWord?.takeIf { it.isValid() }?.let {
                     val domainWord = DictionaryMapper.toDomain(response[0], word)
                     WordEntity(
                         id = domainWord.id,
@@ -41,13 +43,14 @@ class WordFetchWorker(context: Context, params: WorkerParameters) : CoroutineWor
                         audioUrl = domainWord.getAudioUrl(),
                         audioDownloadStatus = Constants.DOWNLOAD_STATUS_PENDING
                     )
-                } else null
+                }// else null
             }
 
             dao.insertWords(wordEntities)
             val wordsNullable: Array<String?> = words.map { it }.toTypedArray()
             Result.success(Data.Builder().putStringArray("result", wordsNullable).build())
         } catch (e: Exception) {
+            LogUtils.log("Failure: ${e.message}")
             Result.failure()
         }
     }

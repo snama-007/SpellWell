@@ -78,7 +78,7 @@ class CachedWordsViewModel @Inject constructor(
                         is DictionaryFetchResult.Success -> {
                             setSuccess(WWResultData.WordResult("", result.data))
                         }
-                        else -> setError("Failed to load cached words")
+                        else -> setError("Failed to fetch words")
                     }
                 }
             }

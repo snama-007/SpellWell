@@ -133,8 +133,12 @@ class WordCardFragment : Fragment() {
     }
 
     private fun setupToolbar() {
-        binding.toolbar.setNavigationOnClickListener {
-            findNavController().navigateUp()
+        binding.toolbar.apply {
+            title = args.setName.uppercase()
+            setNavigationIcon(R.drawable.ic_close)
+            setNavigationOnClickListener {
+                findNavController().popBackStack()
+            }
         }
     }
 

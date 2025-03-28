@@ -135,7 +135,7 @@ class DictionaryRepositoryImpl @Inject constructor(
         if (isNetworkAvailable()) {
             // If not available locally but network is available, fetch from network
             try {
-                LogUtils.log("Set $setName fetching from MW: ${words.size} words")
+                LogUtils.log("Set $setName fetching from MW: ${words.size}")
 
                 // Use the network strategy to fetch words
                 networkFetchStrategy.fetchWords(setName, words).collect { result ->
@@ -190,8 +190,10 @@ class DictionaryRepositoryImpl @Inject constructor(
         
         return try {
             val response = api.getWord(word.lowercase())
-            if (response.isNotEmpty()) {
-                val domainWord = mapResponseToDomain(response[0], word)
+            if(response.isEmpty()) DictionaryFetchResult.Error(WORD_NOT_FOUND_ERROR, Exception())
+            val responseWord = response.first()
+            if (responseWord.isValid()) {
+                val domainWord = mapResponseToDomain(responseWord, word)
                 storeWordInDatabase(domainWord)
                 DictionaryFetchResult.Success(domainWord)
             } else {

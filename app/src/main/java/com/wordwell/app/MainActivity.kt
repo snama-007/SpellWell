@@ -7,8 +7,9 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.NavHostFragment
 import com.google.android.material.snackbar.Snackbar
 import com.wordwell.app.util.MockWordsData
-import com.wordwell.app.util.NotificationPermissionHelper
+import com.wordwell.feature.wordpractice.Utils.PermissionHelper
 import com.wordwell.feature.wordpractice.WordPracticeFeature
+import com.wordwell.feature.wordsearch.WordSearchFeature
 import com.wordwell.libwwmw.WordWellServer
 import com.wordwell.libwwmw.presentation.viewmodels.CachedWordsViewModel
 import com.wordwell.libwwmw.utils.Constants
@@ -22,6 +23,10 @@ class MainActivity : AppCompatActivity() {
 
     @Inject 
     lateinit var wordPracticeFeature: WordPracticeFeature
+    
+    @Inject
+    lateinit var wordSearchFeature: WordSearchFeature
+    
     private lateinit var container: WordWellServer
     private lateinit var cachedWordsViewModel: CachedWordsViewModel
     private lateinit var navHostFragment: NavHostFragment
@@ -32,6 +37,13 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         if (savedInstanceState == null) {
+            // Set up the SearchFeature in the search_container
+            if (findViewById<androidx.compose.ui.platform.ComposeView>(R.id.search_container) != null) {
+                findViewById<androidx.compose.ui.platform.ComposeView>(R.id.search_container).setContent {
+                    wordSearchFeature.SearchUI()
+                }
+            }
+            
             // Create NavHostFragment
             navHostFragment = wordPracticeFeature.getNavHostFragment()
             
@@ -53,18 +65,18 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun checkAndRequestNotificationPermission() {
-        if (!NotificationPermissionHelper.checkNotificationPermission(this)) {
-            if (NotificationPermissionHelper.shouldShowRequestPermissionRationale(this)) {
+        if (!PermissionHelper.checkNotificationPermission(this)) {
+            if (PermissionHelper.shouldShowRequestPermissionRationale(this)) {
                 // Show rationale if needed
                 Snackbar.make(
                     findViewById(android.R.id.content),
                     "Notifications help you stay updated with your learning progress",
                     Snackbar.LENGTH_LONG
                 ).setAction("Grant") {
-                    NotificationPermissionHelper.requestNotificationPermission(this)
+                    PermissionHelper.requestNotificationPermission(this)
                 }.show()
             } else {
-                NotificationPermissionHelper.requestNotificationPermission(this)
+                PermissionHelper.requestNotificationPermission(this)
             }
         }
     }

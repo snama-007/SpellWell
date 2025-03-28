@@ -11,34 +11,38 @@ import com.wordwell.libwwmw.utils.AudioUtils
  */
 object DictionaryMapper {
     fun toDomain(response: DictionaryResponse, searchedWord: String): Word {
-        return Word(
-            id = response.meta.id,
-            word = searchedWord,
-            phonetics = response.headwordInfo.pronunciations?.map { pron ->
-                Phonetic(
-                    text = pron.text,
-                    audioUrl = pron.sound?.audio?.let { audio ->
-                        val subdirectory = AudioUtils.getAudioSubdirectory(audio)
-                        "${MerriamWebsterApi.BASE_AUDIO_URL_FULL}$subdirectory/$audio.mp3"
-                    }
-                )
-            } ?: emptyList(),
-            definitions = response.definitions.map { def ->
-                Definition(
-                    partOfSpeech = response.functionalLabel,
-                    meaning = extractMeaning(def.sensesSequence),
-                    examples = extractExamples(def.sensesSequence)
-                )
-            }
-        )
+        try{
+            return Word(
+                id = response.meta?.id.toString(),
+                word = searchedWord,
+                phonetics = response.headwordInfo?.pronunciations?.map { pron ->
+                    Phonetic(
+                        text = pron.text.toString(),
+                        audioUrl = pron.sound?.audio?.let { audio ->
+                            val subdirectory = AudioUtils.getAudioSubdirectory(audio)
+                            "${MerriamWebsterApi.BASE_AUDIO_URL_FULL}$subdirectory/$audio.mp3"
+                        }
+                    )
+                } ?: emptyList(),
+                definitions = response.definitions!!.map { def ->
+                    Definition(
+                        partOfSpeech = response.functionalLabel.toString(),
+                        meaning = extractMeaning(def.sensesSequence),
+                        examples = extractExamples(def.sensesSequence)
+                    )
+                }
+            )
+        } catch (e: Exception) {
+            throw RuntimeException("Error mapping dictionary response to domain model", e)
+        }
     }
 
-    private fun extractMeaning(senseSeq: List<List<List<Any>>>): String {
+    private fun extractMeaning(senseSeq: List<List<List<Any>>>?): String {
         // Simplified meaning extraction - you might want to enhance this based on API response structure
-        return senseSeq.firstOrNull()?.firstOrNull()?.getOrNull(1)?.toString() ?: ""
+        return senseSeq?.firstOrNull()?.firstOrNull()?.getOrNull(1)?.toString() ?: ""
     }
 
-    private fun extractExamples(senseSeq: List<List<List<Any>>>): List<String> {
+    private fun extractExamples(senseSeq: List<List<List<Any>>>?): List<String> {
         // Simplified example extraction - you might want to enhance this based on API response structure
         return emptyList()
     } 
