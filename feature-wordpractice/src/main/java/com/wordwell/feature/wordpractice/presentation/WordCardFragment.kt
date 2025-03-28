@@ -44,7 +44,7 @@ class WordCardFragment : Fragment() {
         setupRecyclerView()
         setupSwipeGestures()
         setupObservers()
-        setupToolbar()
+        //setupToolbar()
     }
 
     override fun onAttach(context: Context) {

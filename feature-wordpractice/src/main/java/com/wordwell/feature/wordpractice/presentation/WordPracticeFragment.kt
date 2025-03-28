@@ -49,7 +49,7 @@ class WordPracticeFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         setupRecyclerView()
         setupObservers()
-        setupToolbar()
+        //setupToolbar()
     }
 
     private fun setupRecyclerView() {
