@@ -1,6 +1,7 @@
 package com.wordwell.feature.wordpractice.presentation.adapter
 
 import android.annotation.SuppressLint
+import android.media.MediaPlayer
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
@@ -8,6 +9,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.wordwell.feature.wordpractice.databinding.ItemWordCardBinding
 import com.wordwell.libwwmw.domain.models.Word
+import com.wordwell.libwwmw.utils.LogUtils
 
 class WordCardAdapter(
     private val onPlayClick: (Word) -> Unit,
@@ -18,6 +20,7 @@ class WordCardAdapter(
 
     private var totalCount: Int = 0
     private var currentPosition: Int = 0
+    private var mediaPlayer: MediaPlayer? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): WordCardViewHolder {
         val binding = ItemWordCardBinding.inflate(
@@ -37,12 +40,28 @@ class WordCardAdapter(
     fun setTotalCount(count: Int) {
         totalCount = count
         notifyDataSetChanged()
-
     }
 
     fun setCurrentPosition(position: Int) {
         currentPosition = position
-        notifyDataSetChanged()
+        notifyItemChanged(currentPosition)
+    }
+
+    private fun playPhoneticsAudio(audioUrl: String) {
+        try {
+            mediaPlayer?.release()
+            mediaPlayer = MediaPlayer().apply {
+                setDataSource(audioUrl)
+                prepare()
+                start()
+                setOnCompletionListener {
+                    release()
+                    mediaPlayer = null
+                }
+            }
+        } catch (e: Exception) {
+            LogUtils.log("Error playing phonetics audio: ${e.message}")
+        }
     }
 
     inner class WordCardViewHolder(
@@ -63,10 +82,20 @@ class WordCardAdapter(
                 marginEnd = horizontalMargin
             }
 
-            binding.playButton.setOnClickListener {
+            binding.speakerButton.setOnClickListener {
                 val position = adapterPosition
                 if (position != RecyclerView.NO_POSITION) {
                     onPlayClick(getItem(position))
+                }
+            }
+
+            binding.phoneticsContainer.setOnClickListener {
+                val position = adapterPosition
+                if (position != RecyclerView.NO_POSITION) {
+                    val word = getItem(position)
+                    word.phonetics.firstOrNull()?.audioUrl?.let { audioUrl ->
+                        playPhoneticsAudio(audioUrl)
+                    }
                 }
             }
 
